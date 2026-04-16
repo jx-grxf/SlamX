@@ -19,8 +19,16 @@ struct SettingsView: View {
             }
 
             Section("Audio") {
+                Picker("Sound", selection: $monitor.selectedSound) {
+                    ForEach(SlapSound.allCases) { sound in
+                        Label(sound.title, systemImage: sound.symbol)
+                            .tag(sound)
+                    }
+                }
+                .pickerStyle(.segmented)
+
                 HStack {
-                    Text("Slap sound")
+                    Text("Selected sound")
                     Spacer()
                     Text(monitor.soundStatus)
                         .foregroundStyle(.secondary)
@@ -32,7 +40,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 420, height: 260)
+        .frame(width: 420, height: 310)
         .padding()
     }
 }

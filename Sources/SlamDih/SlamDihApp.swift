@@ -47,6 +47,7 @@ struct SlamDihApp: App {
             Divider()
 
             Text("Slaps: \(monitor.slapCount)")
+            Text("Sound: \(monitor.selectedSound.title)")
             Text("Impact: \(monitor.currentImpact, specifier: "%.2f") g")
         }
         .menuBarExtraStyle(.menu)

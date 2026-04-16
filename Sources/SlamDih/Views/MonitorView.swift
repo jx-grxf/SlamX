@@ -184,6 +184,19 @@ struct ControlPanel: View {
                 .help("Reset counter")
             }
 
+            VStack(alignment: .leading, spacing: 10) {
+                Label("Sound", systemImage: monitor.selectedSound.symbol)
+                    .symbolRenderingMode(.hierarchical)
+
+                Picker("Sound", selection: $monitor.selectedSound) {
+                    ForEach(SlapSound.allCases) { sound in
+                        Label(sound.title, systemImage: sound.symbol)
+                            .tag(sound)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
+
             Divider().overlay(.white.opacity(0.12))
 
             InfoRow(title: "Sensor", value: monitor.sensorName)

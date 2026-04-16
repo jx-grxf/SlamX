@@ -24,6 +24,7 @@ final class SlapMonitor {
     var samplesPerSecond = 0
     var rawReport = ""
     var lastEventDescription = "No slap detected yet"
+    var selectedSound: SlapSound = .slap
 
     @ObservationIgnored private let sensor = MacBookMotionSensor()
     @ObservationIgnored private let soundPlayer = SoundPlayer()
@@ -32,7 +33,7 @@ final class SlapMonitor {
     @ObservationIgnored private var previousSample: MotionSample?
 
     var soundStatus: String {
-        soundPlayer.isReady ? "Ready" : "Missing"
+        soundPlayer.isReady(for: selectedSound) ? "\(selectedSound.title) ready" : "\(selectedSound.title) missing"
     }
 
     var xAxis: Double {
@@ -88,8 +89,8 @@ final class SlapMonitor {
     }
 
     func playTestSound() {
-        soundPlayer.play()
-        lastEventDescription = "Sound test played"
+        soundPlayer.play(selectedSound)
+        lastEventDescription = "\(selectedSound.title) sound test played"
     }
 
     private func handle(_ sample: MotionSample) {
@@ -106,8 +107,8 @@ final class SlapMonitor {
 
         if let event = detector.process(sample) {
             slapCount += 1
-            soundPlayer.play()
-            lastEventDescription = "Slap \(slapCount) at \(event.impact.formatted(.number.precision(.fractionLength(2)))) g"
+            soundPlayer.play(selectedSound)
+            lastEventDescription = "\(selectedSound.title) \(slapCount) at \(event.impact.formatted(.number.precision(.fractionLength(2)))) g"
         }
     }
 

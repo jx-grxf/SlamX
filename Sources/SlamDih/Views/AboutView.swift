@@ -17,7 +17,7 @@ struct AboutView: View {
                 GridRow {
                     Text("Sound")
                         .foregroundStyle(.secondary)
-                    Text(monitor.soundStatus)
+                    Text("\(monitor.selectedSound.title) / \(monitor.soundStatus)")
                 }
                 GridRow {
                     Text("Backend")

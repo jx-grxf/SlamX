@@ -17,7 +17,8 @@ let package = Package(
             name: "SlamDih",
             dependencies: ["SlamDihCore"],
             resources: [
-                .copy("Resources/SlapSoundEffect.mp3")
+                .copy("Resources/SlapSoundEffect.mp3"),
+                .copy("Resources/FartSoundEffect.mp3")
             ],
             linkerSettings: [
                 .linkedFramework("AppKit"),
