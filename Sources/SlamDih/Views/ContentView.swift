@@ -65,18 +65,18 @@ private struct SidebarView: View {
     let monitor: SlapMonitor
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             Spacer()
-                .frame(height: 48)
+                .frame(height: 58)
 
             ForEach(AppSection.allCases) { section in
                 Button {
                     selection = section
                 } label: {
-                    HStack(spacing: 10) {
+                    HStack(spacing: 12) {
                         Image(systemName: section.symbol)
                             .symbolRenderingMode(.hierarchical)
-                            .frame(width: 20)
+                            .frame(width: 18)
 
                         Text(section.rawValue)
                             .font(.callout.weight(.semibold))
@@ -84,8 +84,8 @@ private struct SidebarView: View {
                         Spacer()
                     }
                     .foregroundStyle(selection == section ? .white : .white.opacity(0.64))
-                    .padding(.horizontal, 12)
-                    .frame(height: 38)
+                    .padding(.horizontal, 14)
+                    .frame(height: 36)
                     .background(selection == section ? Color.white.opacity(0.13) : Color.clear, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
                 .buttonStyle(.plain)
@@ -105,10 +105,10 @@ private struct SidebarView: View {
                     .monospacedDigit()
                     .foregroundStyle(.white.opacity(0.88))
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 16)
             .padding(.bottom, 18)
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 16)
         .frame(width: 208)
         .frame(maxHeight: .infinity, alignment: .topLeading)
         .background(Color(red: 0.05, green: 0.06, blue: 0.07))
