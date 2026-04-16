@@ -16,6 +16,7 @@
 		B10000000000000000000007 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000007 /* ContentView.swift */; };
 		B10000000000000000000008 /* MonitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000008 /* MonitorView.swift */; };
 		B10000000000000000000009 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000009 /* SettingsView.swift */; };
+		B10000000000000000000014 /* UpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000016 /* UpdateController.swift */; };
 		B1000000000000000000000A /* MotionReportParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000A /* MotionReportParser.swift */; };
 		B1000000000000000000000B /* MotionSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000B /* MotionSample.swift */; };
 		B1000000000000000000000C /* SlapDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000C /* SlapDetector.swift */; };
@@ -26,6 +27,7 @@
 		B10000000000000000000011 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F10000000000000000000013 /* AppKit.framework */; };
 		B10000000000000000000012 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F10000000000000000000014 /* AVFoundation.framework */; };
 		B10000000000000000000013 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F10000000000000000000015 /* IOKit.framework */; };
+		B10000000000000000000015 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = A30000000000000000000002 /* Sparkle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +46,7 @@
 		F10000000000000000000001 /* SlamDihApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/SlamDihApp.swift; sourceTree = "<group>"; };
 		F10000000000000000000002 /* MacBookMotionSensor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Services/MacBookMotionSensor.swift; sourceTree = "<group>"; };
 		F10000000000000000000003 /* SoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Services/SoundPlayer.swift; sourceTree = "<group>"; };
+		F10000000000000000000016 /* UpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Services/UpdateController.swift; sourceTree = "<group>"; };
 		F10000000000000000000004 /* SlapMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/ViewModels/SlapMonitor.swift; sourceTree = "<group>"; };
 		F10000000000000000000005 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Views/AboutView.swift; sourceTree = "<group>"; };
 		F10000000000000000000006 /* CalibrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Views/CalibrationView.swift; sourceTree = "<group>"; };
@@ -56,6 +59,7 @@
 		F1000000000000000000000D /* SlapSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/SlapSoundEffect.mp3; sourceTree = "<group>"; };
 		F1000000000000000000000E /* FartSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/FartSoundEffect.mp3; sourceTree = "<group>"; };
 		F1000000000000000000000F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
+		F10000000000000000000017 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Resources/Info.plist; sourceTree = "<group>"; };
 		F10000000000000000000010 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		F10000000000000000000011 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F10000000000000000000012 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -73,6 +77,7 @@
 				B10000000000000000000011 /* AppKit.framework in Frameworks */,
 				B10000000000000000000012 /* AVFoundation.framework in Frameworks */,
 				B10000000000000000000013 /* IOKit.framework in Frameworks */,
+				B10000000000000000000015 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,6 +131,7 @@
 			children = (
 				F10000000000000000000002 /* MacBookMotionSensor.swift */,
 				F10000000000000000000003 /* SoundPlayer.swift */,
+				F10000000000000000000016 /* UpdateController.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -164,6 +170,7 @@
 			isa = PBXGroup;
 			children = (
 				F1000000000000000000000F /* Assets.xcassets */,
+				F10000000000000000000017 /* Info.plist */,
 				F1000000000000000000000D /* SlapSoundEffect.mp3 */,
 				F1000000000000000000000E /* FartSoundEffect.mp3 */,
 			);
@@ -197,6 +204,9 @@
 				D10000000000000000000001 /* PBXTargetDependency */,
 			);
 			name = SlamDih;
+			packageProductDependencies = (
+				A30000000000000000000002 /* Sparkle */,
+			);
 			productName = SlamDih;
 			productReference = A20000000000000000000001 /* SlamDih.app */;
 			productType = "com.apple.product-type.application";
@@ -243,6 +253,9 @@
 				Base,
 			);
 			mainGroup = A00000000000000000000002;
+			packageReferences = (
+				A30000000000000000000001 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			productRefGroup = A00000000000000000000003 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -280,6 +293,7 @@
 				B10000000000000000000007 /* ContentView.swift in Sources */,
 				B10000000000000000000008 /* MonitorView.swift in Sources */,
 				B10000000000000000000009 /* SettingsView.swift in Sources */,
+				B10000000000000000000014 /* UpdateController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -426,10 +440,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = SlamDih;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright (c) 2026 Johannes Grof. MIT License.";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -452,10 +464,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = SlamDih;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright (c) 2026 Johannes Grof. MIT License.";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -525,6 +535,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A30000000000000000000001 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A30000000000000000000002 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A30000000000000000000001 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A00000000000000000000001 /* Project object */;
 }

@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct SlamDihApp: App {
     @State private var monitor = SlapMonitor()
+    @State private var updateController = UpdateController()
 
     var body: some Scene {
         WindowGroup {
@@ -21,6 +22,11 @@ struct SlamDihApp: App {
                     monitor.playTestSound()
                 }
                 .keyboardShortcut("t", modifiers: [.command])
+
+                Button("Check for Updates...") {
+                    updateController.checkForUpdates()
+                }
+                .keyboardShortcut("u", modifiers: [.command])
 
                 Divider()
 
