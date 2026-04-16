@@ -4,6 +4,7 @@ DerivedData/
 build/
 .vscode/
 *.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
 *.xcworkspace/xcuserdata/
 *.xcuserstate
 *.o

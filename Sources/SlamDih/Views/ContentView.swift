@@ -21,7 +21,7 @@ enum AppSection: String, CaseIterable, Identifiable {
 
 struct ContentView: View {
     @Bindable var monitor: SlapMonitor
-    @State private var selection: AppSection? = .monitor
+    @State private var selection: AppSection = .monitor
 
     var body: some View {
         NavigationSplitView {
@@ -42,7 +42,7 @@ struct ContentView: View {
                 }
             }
         } detail: {
-            switch selection ?? .monitor {
+            switch selection {
             case .monitor:
                 MonitorView(monitor: monitor)
             case .calibration:
