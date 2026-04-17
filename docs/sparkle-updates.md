@@ -13,7 +13,7 @@ SlamDih uses Sparkle 2 for in-app updates.
 Build the DMG:
 
 ```bash
-./scripts/create-dmg.sh 0.1.1
+./scripts/create-dmg.sh 0.2.0
 ```
 
 Generate the appcast:
@@ -24,8 +24,8 @@ Generate the appcast:
 
 Upload these release assets:
 
-- `.build/dmg/SlamDih-0.1.1.dmg`
-- `.build/dmg/SlamDih-0.1.1.dmg.sha256`
+- `.build/dmg/SlamDih-0.2.0.dmg`
+- `.build/dmg/SlamDih-0.2.0.dmg.sha256`
 - `.build/dmg/appcast.xml`
 
 The app checks this feed:

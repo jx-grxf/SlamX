@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_NAME="SlamDih"
-VERSION="${1:-0.1.0}"
+VERSION="${1:-0.2.0}"
 BUILD_ROOT="$ROOT_DIR/.build/xcode-release"
 DMG_ROOT="$ROOT_DIR/.build/dmg"
 APP_PATH="$BUILD_ROOT/Release/$APP_NAME.app"
