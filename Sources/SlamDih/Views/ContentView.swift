@@ -176,7 +176,7 @@ private struct SidebarStatusView: View {
         case .detected:
             .mint
         case .unsupported:
-            .orange
+            .red
         }
     }
 }

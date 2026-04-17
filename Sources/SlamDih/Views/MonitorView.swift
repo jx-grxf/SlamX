@@ -543,7 +543,7 @@ struct SensorHealthBadge: View {
         case .detected:
             .mint
         case .unsupported:
-            .orange
+            .red
         }
     }
 }

@@ -252,7 +252,7 @@ struct OnboardingView: View {
         case .detected:
             .mint
         case .unsupported:
-            .orange
+            .red
         }
     }
 
@@ -395,7 +395,7 @@ private struct SensorScannerView: View {
         if hasCompletedSoundTest {
             .mint
         } else if availability == .unsupported {
-            .orange
+            .red
         } else {
             .cyan
         }

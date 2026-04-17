@@ -58,6 +58,10 @@ final class SlapMonitor {
         static let customAudioDisclaimerAccepted = "customAudioDisclaimerAccepted"
     }
 
+    private enum Timing {
+        static let minimumAvailabilityCheckDuration: Duration = .seconds(3)
+    }
+
     var isMonitoring = false
     var status = "Idle"
     var sensorName = "Apple SPU Accelerometer"
@@ -228,7 +232,12 @@ final class SlapMonitor {
         sensorAvailability = .checking
         status = "Checking sensor"
 
-        try? await Task.sleep(for: .milliseconds(900))
+        do {
+            try await Task.sleep(for: Timing.minimumAvailabilityCheckDuration)
+        } catch {
+            return
+        }
+
         refreshSensorAvailability()
     }
 
