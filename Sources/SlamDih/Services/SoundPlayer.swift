@@ -4,6 +4,7 @@ import Foundation
 enum SlapSound: String, CaseIterable, Identifiable {
     case slap
     case fart
+    case sexy
 
     var id: Self { self }
 
@@ -13,6 +14,8 @@ enum SlapSound: String, CaseIterable, Identifiable {
             "Slap"
         case .fart:
             "Fart"
+        case .sexy:
+            "Sexy"
         }
     }
 
@@ -22,6 +25,8 @@ enum SlapSound: String, CaseIterable, Identifiable {
             "SlapSoundEffect"
         case .fart:
             "FartSoundEffect"
+        case .sexy:
+            "SexySoundEffect"
         }
     }
 
@@ -31,6 +36,8 @@ enum SlapSound: String, CaseIterable, Identifiable {
             "hand.raised.fill"
         case .fart:
             "wind"
+        case .sexy:
+            "sparkles"
         }
     }
 }
