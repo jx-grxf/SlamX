@@ -83,6 +83,10 @@ final class MacBookMotionSensor {
         self.sampleHandler = nil
     }
 
+    static func isAccelerometerAvailable() -> Bool {
+        createAccelerometerDevice() != nil
+    }
+
     private func handleReport(_ report: [UInt8]) {
         guard let sample = MotionReportParser.sample(from: report) else {
             return

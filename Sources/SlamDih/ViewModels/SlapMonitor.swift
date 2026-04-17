@@ -2,12 +2,59 @@ import Foundation
 import Observation
 import SlamDihCore
 
+enum SensorAvailability: Equatable {
+    case checking
+    case detected
+    case unsupported
+
+    var canMonitor: Bool {
+        self == .detected
+    }
+
+    var title: String {
+        switch self {
+        case .checking:
+            "Checking accelerometer"
+        case .detected:
+            "Accelerometer detected"
+        case .unsupported:
+            "Your Mac is not supported"
+        }
+    }
+
+    var compactTitle: String {
+        switch self {
+        case .checking:
+            "Checking"
+        case .detected:
+            "Detected"
+        case .unsupported:
+            "Unsupported"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .checking:
+            "waveform.path.ecg"
+        case .detected:
+            "checkmark.seal.fill"
+        case .unsupported:
+            "exclamationmark.triangle.fill"
+        }
+    }
+}
+
 @MainActor
 @Observable
 final class SlapMonitor {
+    static let thresholdRange = 0.05...1.0
+    static let thresholdStep = 0.05
+
     var isMonitoring = false
     var status = "Idle"
     var sensorName = "Apple SPU Accelerometer"
+    var sensorAvailability: SensorAvailability = .checking
     var slapCount = 0
     var threshold = 0.75 {
         didSet {
@@ -32,6 +79,10 @@ final class SlapMonitor {
     @ObservationIgnored private var sampleWindow: [TimeInterval] = []
     @ObservationIgnored private var previousSample: MotionSample?
 
+    init() {
+        refreshSensorAvailability()
+    }
+
     var soundStatus: String {
         soundPlayer.isReady(for: selectedSound) ? "\(selectedSound.title) ready" : "\(selectedSound.title) missing"
     }
@@ -52,11 +103,35 @@ final class SlapMonitor {
         currentSample.acceleration.magnitude
     }
 
+    var monitoringActionTitle: String {
+        isMonitoring ? "Stop Monitoring" : "Start Monitoring"
+    }
+
+    var monitoringActionSymbol: String {
+        isMonitoring ? "stop.fill" : "play.fill"
+    }
+
+    var sensorStatusTitle: String {
+        sensorAvailability.compactTitle
+    }
+
     func toggleMonitoring() {
         isMonitoring ? stopMonitoring() : startMonitoring()
     }
 
     func startMonitoring() {
+        guard !isMonitoring else {
+            status = "Listening"
+            return
+        }
+
+        refreshSensorAvailability()
+
+        guard sensorAvailability.canMonitor else {
+            status = "Unsupported Mac"
+            return
+        }
+
         do {
             try sensor.start { [weak self] sample in
                 Task { @MainActor in
@@ -72,6 +147,24 @@ final class SlapMonitor {
             status = error.localizedDescription
             isMonitoring = false
         }
+    }
+
+    func checkSensorAvailability() async {
+        sensorAvailability = .checking
+        status = "Checking sensor"
+
+        try? await Task.sleep(for: .milliseconds(900))
+        refreshSensorAvailability()
+    }
+
+    func refreshSensorAvailability() {
+        guard !isMonitoring else {
+            sensorAvailability = .detected
+            return
+        }
+
+        sensorAvailability = MacBookMotionSensor.isAccelerometerAvailable() ? .detected : .unsupported
+        status = sensorAvailability.canMonitor ? "Ready" : "Unsupported Mac"
     }
 
     func stopMonitoring() {

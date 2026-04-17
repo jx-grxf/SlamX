@@ -69,7 +69,10 @@ struct MonitorView: View {
 
             Spacer()
 
-            StatusPill(isActive: monitor.isMonitoring, text: monitor.status)
+            HStack(spacing: 10) {
+                SensorHealthBadge(availability: monitor.sensorAvailability)
+                StatusPill(isActive: monitor.isMonitoring, text: monitor.status)
+            }
         }
     }
 }
@@ -151,7 +154,7 @@ struct ControlPanel: View {
                         .foregroundStyle(.white.opacity(0.72))
                 }
 
-                Slider(value: $monitor.threshold, in: 0.15...2.5, step: 0.05)
+                Slider(value: $monitor.threshold, in: SlapMonitor.thresholdRange, step: SlapMonitor.thresholdStep)
                     .tint(.mint)
             }
 
@@ -159,11 +162,12 @@ struct ControlPanel: View {
                 Button {
                     monitor.toggleMonitoring()
                 } label: {
-                    Label(monitor.isMonitoring ? "Stop" : "Start", systemImage: monitor.isMonitoring ? "stop.fill" : "play.fill")
+                    Label(monitor.monitoringActionTitle, systemImage: monitor.monitoringActionSymbol)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .tint(monitor.isMonitoring ? .red : .mint)
+                .disabled(!monitor.sensorAvailability.canMonitor && !monitor.isMonitoring)
 
                 Button {
                     monitor.playTestSound()
@@ -199,7 +203,7 @@ struct ControlPanel: View {
 
             Divider().overlay(.white.opacity(0.12))
 
-            InfoRow(title: "Sensor", value: monitor.sensorName)
+            InfoRow(title: "Sensor", value: "\(monitor.sensorName) · \(monitor.sensorStatusTitle)")
             InfoRow(title: "Sound", value: monitor.soundStatus)
             InfoRow(title: "Status", value: monitor.status)
         }
@@ -271,6 +275,37 @@ struct PanelHeader: View {
             Text(title)
                 .font(.headline)
             Spacer()
+        }
+    }
+}
+
+struct SensorHealthBadge: View {
+    let availability: SensorAvailability
+
+    var body: some View {
+        HStack(spacing: 7) {
+            Image(systemName: availability.systemImage)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(tint)
+            Text(availability.compactTitle)
+                .lineLimit(1)
+        }
+        .font(.callout.weight(.semibold))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(.regularMaterial, in: Capsule())
+        .foregroundStyle(.primary)
+        .help(availability.title)
+    }
+
+    private var tint: Color {
+        switch availability {
+        case .checking:
+            .cyan
+        case .detected:
+            .mint
+        case .unsupported:
+            .orange
         }
     }
 }

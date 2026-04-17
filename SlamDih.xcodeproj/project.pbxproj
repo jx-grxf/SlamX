@@ -16,6 +16,7 @@
 		B10000000000000000000007 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000007 /* ContentView.swift */; };
 		B10000000000000000000008 /* MonitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000008 /* MonitorView.swift */; };
 		B10000000000000000000009 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000009 /* SettingsView.swift */; };
+		B10000000000000000000014 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000016 /* OnboardingView.swift */; };
 		B1000000000000000000000A /* MotionReportParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000A /* MotionReportParser.swift */; };
 		B1000000000000000000000B /* MotionSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000B /* MotionSample.swift */; };
 		B1000000000000000000000C /* SlapDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000C /* SlapDetector.swift */; };
@@ -50,6 +51,7 @@
 		F10000000000000000000007 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Views/ContentView.swift; sourceTree = "<group>"; };
 		F10000000000000000000008 /* MonitorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Views/MonitorView.swift; sourceTree = "<group>"; };
 		F10000000000000000000009 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Views/SettingsView.swift; sourceTree = "<group>"; };
+		F10000000000000000000016 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Views/OnboardingView.swift; sourceTree = "<group>"; };
 		F1000000000000000000000A /* MotionReportParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDihCore/MotionReportParser.swift; sourceTree = "<group>"; };
 		F1000000000000000000000B /* MotionSample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDihCore/MotionSample.swift; sourceTree = "<group>"; };
 		F1000000000000000000000C /* SlapDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDihCore/SlapDetector.swift; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 				F10000000000000000000006 /* CalibrationView.swift */,
 				F10000000000000000000007 /* ContentView.swift */,
 				F10000000000000000000008 /* MonitorView.swift */,
+				F10000000000000000000016 /* OnboardingView.swift */,
 				F10000000000000000000009 /* SettingsView.swift */,
 			);
 			name = Views;
@@ -279,6 +282,7 @@
 				B10000000000000000000006 /* CalibrationView.swift in Sources */,
 				B10000000000000000000007 /* ContentView.swift in Sources */,
 				B10000000000000000000008 /* MonitorView.swift in Sources */,
+				B10000000000000000000014 /* OnboardingView.swift in Sources */,
 				B10000000000000000000009 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
