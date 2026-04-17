@@ -27,6 +27,7 @@
 		B10000000000000000000012 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F10000000000000000000014 /* AVFoundation.framework */; };
 		B10000000000000000000013 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F10000000000000000000015 /* IOKit.framework */; };
 		B10000000000000000000014 /* Sources/SlamDih/Views/OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000016 /* Sources/SlamDih/Views/OnboardingView.swift */; };
+		B10000000000000000000015 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000017 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,7 @@
 		F10000000000000000000014 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		F10000000000000000000015 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		F10000000000000000000016 /* Sources/SlamDih/Views/OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Views/OnboardingView.swift; sourceTree = "<group>"; };
+		F10000000000000000000017 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/SexySoundEffect.mp3; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,6 +171,7 @@
 				F1000000000000000000000F /* Resources/Assets.xcassets */,
 				F1000000000000000000000D /* Sources/SlamDih/Resources/SlapSoundEffect.mp3 */,
 				F1000000000000000000000E /* Sources/SlamDih/Resources/FartSoundEffect.mp3 */,
+				F10000000000000000000017 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -264,6 +267,7 @@
 				B1000000000000000000000F /* Resources/Assets.xcassets in Resources */,
 				B1000000000000000000000D /* Sources/SlamDih/Resources/SlapSoundEffect.mp3 in Resources */,
 				B1000000000000000000000E /* Sources/SlamDih/Resources/FartSoundEffect.mp3 in Resources */,
+				B10000000000000000000015 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
