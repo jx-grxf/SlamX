@@ -25,7 +25,8 @@ let package = Package(
             resources: [
                 .copy("Resources/SlapSoundEffect.mp3"),
                 .copy("Resources/FartSoundEffect.mp3"),
-                .copy("Resources/SexySoundEffect.mp3")
+                .copy("Resources/SexySoundEffect.mp3"),
+                .copy("Resources/YowchSoundEffect.mp3")
             ],
             linkerSettings: [
                 .linkedFramework("AppKit"),

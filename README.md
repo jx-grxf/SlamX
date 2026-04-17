@@ -52,7 +52,7 @@ It is built as a private, local-first macOS tool. No sensor data leaves the mach
 | Apple SPU sensor access | Reads the MacBook accelerometer through IOKit HID reports |
 | Live telemetry | Shows slap count, current impact, peak impact, sample rate, axis values, and raw HID bytes |
 | Adjustable detection | Sensitivity slider and calibration presets for soft, balanced, and hard impacts |
-| Local audio | Bundles slap and fart sounds as SwiftPM resources and plays the selected one with `AVAudioPlayer` |
+| Local audio | Bundles slap, fart, sexy, and yowch sounds as SwiftPM resources and plays the selected one with `AVAudioPlayer` |
 | Testable core | Parser and impact detector are separated into a small Swift library with unit tests |
 
 ---
@@ -130,7 +130,7 @@ open SlamDih.xcodeproj
 
 - Start monitoring from the toolbar, menu bar extra, or `Command-R`.
 - Use the threshold slider to tune detection.
-- Choose `Slap` or `Fart` in the sound picker.
+- Choose `Slap`, `Fart`, `Sexy`, or `Yowch` in the sound picker.
 - Use the speaker button or `Command-T` to test the selected sound.
 - Use the reset button or `Command-0` to clear the counter.
 

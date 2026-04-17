@@ -5,6 +5,7 @@ enum SlapSound: String, CaseIterable, Identifiable {
     case slap
     case fart
     case sexy
+    case yowch
 
     var id: Self { self }
 
@@ -16,6 +17,8 @@ enum SlapSound: String, CaseIterable, Identifiable {
             "Fart"
         case .sexy:
             "Sexy"
+        case .yowch:
+            "Yowch"
         }
     }
 
@@ -27,6 +30,8 @@ enum SlapSound: String, CaseIterable, Identifiable {
             "FartSoundEffect"
         case .sexy:
             "SexySoundEffect"
+        case .yowch:
+            "YowchSoundEffect"
         }
     }
 
@@ -38,6 +43,8 @@ enum SlapSound: String, CaseIterable, Identifiable {
             "wind"
         case .sexy:
             "sparkles"
+        case .yowch:
+            "exclamationmark.bubble.fill"
         }
     }
 }

@@ -30,6 +30,7 @@
 		B10000000000000000000015 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000017 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 */; };
 		B10000000000000000000016 /* Sources/SlamDih/Services/UpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000018 /* Sources/SlamDih/Services/UpdateController.swift */; };
 		B10000000000000000000017 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = A30000000000000000000002 /* Sparkle */; };
+		B10000000000000000000018 /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001A /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,7 @@
 		F10000000000000000000017 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/SexySoundEffect.mp3; sourceTree = "<group>"; };
 		F10000000000000000000018 /* Sources/SlamDih/Services/UpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Services/UpdateController.swift; sourceTree = "<group>"; };
 		F10000000000000000000019 /* Resources/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Resources/Info.plist; sourceTree = "<group>"; };
+		F1000000000000000000001A /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/YowchSoundEffect.mp3; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,6 +180,7 @@
 				F1000000000000000000000D /* Sources/SlamDih/Resources/SlapSoundEffect.mp3 */,
 				F1000000000000000000000E /* Sources/SlamDih/Resources/FartSoundEffect.mp3 */,
 				F10000000000000000000017 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 */,
+				F1000000000000000000001A /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 */,
 				F10000000000000000000019 /* Resources/Info.plist */,
 			);
 			name = Resources;
@@ -281,6 +284,7 @@
 				B1000000000000000000000D /* Sources/SlamDih/Resources/SlapSoundEffect.mp3 in Resources */,
 				B1000000000000000000000E /* Sources/SlamDih/Resources/FartSoundEffect.mp3 in Resources */,
 				B10000000000000000000015 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 in Resources */,
+				B10000000000000000000018 /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
