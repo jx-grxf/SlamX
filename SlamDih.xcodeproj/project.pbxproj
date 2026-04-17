@@ -28,6 +28,8 @@
 		B10000000000000000000013 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F10000000000000000000015 /* IOKit.framework */; };
 		B10000000000000000000014 /* Sources/SlamDih/Views/OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000016 /* Sources/SlamDih/Views/OnboardingView.swift */; };
 		B10000000000000000000015 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000017 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 */; };
+		B10000000000000000000016 /* Sources/SlamDih/Services/UpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000018 /* Sources/SlamDih/Services/UpdateController.swift */; };
+		B10000000000000000000017 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = A30000000000000000000002 /* Sparkle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +68,8 @@
 		F10000000000000000000015 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		F10000000000000000000016 /* Sources/SlamDih/Views/OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Views/OnboardingView.swift; sourceTree = "<group>"; };
 		F10000000000000000000017 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/SexySoundEffect.mp3; sourceTree = "<group>"; };
+		F10000000000000000000018 /* Sources/SlamDih/Services/UpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Services/UpdateController.swift; sourceTree = "<group>"; };
+		F10000000000000000000019 /* Resources/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Resources/Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +81,7 @@
 				B10000000000000000000011 /* AppKit.framework in Frameworks */,
 				B10000000000000000000012 /* AVFoundation.framework in Frameworks */,
 				B10000000000000000000013 /* IOKit.framework in Frameworks */,
+				B10000000000000000000017 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,6 +135,7 @@
 			children = (
 				F10000000000000000000002 /* Sources/SlamDih/Services/MacBookMotionSensor.swift */,
 				F10000000000000000000003 /* Sources/SlamDih/Services/SoundPlayer.swift */,
+				F10000000000000000000018 /* Sources/SlamDih/Services/UpdateController.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -172,6 +178,7 @@
 				F1000000000000000000000D /* Sources/SlamDih/Resources/SlapSoundEffect.mp3 */,
 				F1000000000000000000000E /* Sources/SlamDih/Resources/FartSoundEffect.mp3 */,
 				F10000000000000000000017 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 */,
+				F10000000000000000000019 /* Resources/Info.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -203,6 +210,9 @@
 				D10000000000000000000001 /* PBXTargetDependency */,
 			);
 			name = SlamDih;
+			packageProductDependencies = (
+				A30000000000000000000002 /* Sparkle */,
+			);
 			productName = SlamDih;
 			productReference = A20000000000000000000001 /* SlamDih.app */;
 			productType = "com.apple.product-type.application";
@@ -249,6 +259,9 @@
 				Base,
 			);
 			mainGroup = A00000000000000000000002;
+			packageReferences = (
+				A30000000000000000000001 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			productRefGroup = A00000000000000000000003 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -288,6 +301,7 @@
 				B10000000000000000000008 /* Sources/SlamDih/Views/MonitorView.swift in Sources */,
 				B10000000000000000000014 /* Sources/SlamDih/Views/OnboardingView.swift in Sources */,
 				B10000000000000000000009 /* Sources/SlamDih/Views/SettingsView.swift in Sources */,
+				B10000000000000000000016 /* Sources/SlamDih/Services/UpdateController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -434,10 +448,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = SlamDih;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright (c) 2026 Johannes Grof. MIT License.";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -460,10 +472,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = SlamDih;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright (c) 2026 Johannes Grof. MIT License.";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -533,6 +543,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A30000000000000000000001 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A30000000000000000000002 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A30000000000000000000001 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A00000000000000000000001 /* Project object */;
 }

@@ -6,6 +6,7 @@ struct SlamDihApp: App {
     @Environment(\.openWindow) private var openWindow
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var monitor = SlapMonitor()
+    @State private var updateController = UpdateController()
 
     var body: some Scene {
         WindowGroup("SlamDih", id: "main") {
@@ -34,6 +35,11 @@ struct SlamDihApp: App {
                     monitor.playTestSound()
                 }
                 .keyboardShortcut("t", modifiers: [.command])
+
+                Button("Check for Updates...") {
+                    updateController.checkForUpdates()
+                }
+                .keyboardShortcut("u", modifiers: [.command])
 
                 Divider()
 
