@@ -21,17 +21,19 @@ enum AppSection: String, CaseIterable, Identifiable {
 
 struct ContentView: View {
     @Bindable var monitor: SlapMonitor
-    @State private var selection: AppSection? = .monitor
+    @State private var selection: AppSection = .monitor
 
     var body: some View {
-        NavigationSplitView {
+        HStack(spacing: 0) {
             SidebarView(selection: $selection, monitor: monitor)
-        } detail: {
+
+            Divider()
+                .overlay(Color.white.opacity(0.08))
+
             detailView
-                .id(selection ?? .monitor)
+                .id(selection)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .navigationSplitViewStyle(.balanced)
         .background(Color(red: 0.07, green: 0.08, blue: 0.09))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -48,7 +50,7 @@ struct ContentView: View {
 
     @ViewBuilder
     private var detailView: some View {
-        switch selection ?? .monitor {
+        switch selection {
         case .monitor:
             MonitorView(monitor: monitor)
         case .calibration:
@@ -60,28 +62,47 @@ struct ContentView: View {
 }
 
 private struct SidebarView: View {
-    @Binding var selection: AppSection?
+    @Binding var selection: AppSection
     let monitor: SlapMonitor
 
     var body: some View {
-        List(selection: $selection) {
-            Section {
-                ForEach(AppSection.allCases) { section in
-                    Label(section.rawValue, systemImage: section.symbol)
-                        .symbolRenderingMode(.hierarchical)
-                        .tag(section)
+        VStack(alignment: .leading, spacing: 10) {
+            Spacer()
+                .frame(height: 58)
+
+            ForEach(AppSection.allCases) { section in
+                Button {
+                    selection = section
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: section.symbol)
+                            .symbolRenderingMode(.hierarchical)
+                            .frame(width: 18)
+
+                        Text(section.rawValue)
+                            .font(.callout.weight(.semibold))
+
+                        Spacer()
+                    }
+                    .foregroundStyle(selection == section ? .white : .white.opacity(0.64))
+                    .padding(.horizontal, 14)
+                    .frame(height: 36)
+                    .background(selection == section ? Color.white.opacity(0.13) : Color.clear, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
+                .buttonStyle(.plain)
+                .help(section.rawValue)
             }
-        }
-        .listStyle(.sidebar)
-        .scrollContentBackground(.hidden)
-        .background(.ultraThinMaterial)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
+
+            Spacer()
+
             SidebarStatusView(monitor: monitor)
-                .padding(16)
-                .background(.ultraThinMaterial)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 18)
         }
-        .navigationTitle("SlamDih")
+        .padding(.horizontal, 16)
+        .frame(width: 208)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
+        .background(Color(red: 0.05, green: 0.06, blue: 0.07))
     }
 }
 
