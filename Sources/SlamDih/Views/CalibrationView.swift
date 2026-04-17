@@ -16,13 +16,13 @@ struct CalibrationView: View {
                         .font(.system(.title3, design: .monospaced).weight(.semibold))
                 }
 
-                Slider(value: $monitor.threshold, in: 0.15...2.5, step: 0.05)
+                Slider(value: $monitor.threshold, in: SlapMonitor.thresholdRange, step: SlapMonitor.thresholdStep)
                     .tint(.mint)
 
                 HStack(spacing: 12) {
                     CalibrationPreset(title: "Soft", value: 0.45, monitor: monitor)
                     CalibrationPreset(title: "Balanced", value: 0.75, monitor: monitor)
-                    CalibrationPreset(title: "Hard", value: 1.15, monitor: monitor)
+                    CalibrationPreset(title: "Hard", value: 1.00, monitor: monitor)
                 }
             }
             .padding(18)

@@ -6,7 +6,7 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section("Detection") {
-                Slider(value: $monitor.threshold, in: 0.15...2.5, step: 0.05) {
+                Slider(value: $monitor.threshold, in: SlapMonitor.thresholdRange, step: SlapMonitor.thresholdStep) {
                     Text("Threshold")
                 } minimumValueLabel: {
                     Text("Soft")
