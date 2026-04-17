@@ -132,7 +132,7 @@ private struct MenuBarPanel: View {
         MenuBarStatButton(title: "Impact", value: "\(monitor.currentImpact.formatted(.number.precision(.fractionLength(2)))) g", symbol: "bolt.fill")
         MenuBarStatButton(title: "Rate", value: "\(monitor.samplesPerSecond) Hz", symbol: "speedometer")
         MenuBarStatButton(title: "Sensor", value: monitor.sensorStatusTitle, symbol: monitor.sensorAvailability.systemImage)
-        MenuBarStatButton(title: "Sound", value: monitor.selectedSound.title, symbol: monitor.selectedSound.symbol)
+        MenuBarStatButton(title: "Sound", value: monitor.selectedSoundTitle, symbol: monitor.selectedSoundSymbol)
     }
 }
 

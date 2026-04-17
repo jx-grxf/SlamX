@@ -131,7 +131,7 @@ struct OnboardingView: View {
             OnboardingStatusItem(
                 title: "Audio",
                 value: monitor.soundStatus,
-                symbol: monitor.selectedSound.symbol,
+                symbol: monitor.selectedSoundSymbol,
                 tint: .orange
             )
 

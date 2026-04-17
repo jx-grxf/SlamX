@@ -54,7 +54,8 @@ final class SlapMonitor {
     private enum PreferenceKey {
         static let nsfwSoundsEnabled = "nsfwSoundsEnabled"
         static let selectedSound = "selectedSound"
-        static let customSoundSelections = "customSoundSelections"
+        static let selectedCustomSound = "selectedCustomSound"
+        static let customAudioDisclaimerAccepted = "customAudioDisclaimerAccepted"
     }
 
     var isMonitoring = false
@@ -96,9 +97,18 @@ final class SlapMonitor {
             userDefaults.set(selectedSound.rawValue, forKey: PreferenceKey.selectedSound)
         }
     }
-    var customSoundSelections: [SlapSound: String] = [:] {
+    var selectedCustomSoundID: String? {
         didSet {
-            persistCustomSoundSelections()
+            if let selectedCustomSoundID {
+                userDefaults.set(selectedCustomSoundID, forKey: PreferenceKey.selectedCustomSound)
+            } else {
+                userDefaults.removeObject(forKey: PreferenceKey.selectedCustomSound)
+            }
+        }
+    }
+    var hasAcceptedCustomAudioDisclaimer = false {
+        didSet {
+            userDefaults.set(hasAcceptedCustomAudioDisclaimer, forKey: PreferenceKey.customAudioDisclaimerAccepted)
         }
     }
 
@@ -113,6 +123,7 @@ final class SlapMonitor {
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
         isNSFWSoundsEnabled = userDefaults.bool(forKey: PreferenceKey.nsfwSoundsEnabled)
+        hasAcceptedCustomAudioDisclaimer = userDefaults.bool(forKey: PreferenceKey.customAudioDisclaimerAccepted)
 
         if let storedSound = userDefaults.string(forKey: PreferenceKey.selectedSound),
            let sound = SlapSound(rawValue: storedSound),
@@ -120,8 +131,10 @@ final class SlapMonitor {
             selectedSound = sound
         }
 
-        customSoundSelections = Self.loadCustomSoundSelections(from: userDefaults)
-            .filter { soundPlayer.customSoundExists(for: $0.key, id: $0.value) }
+        if let storedCustomSoundID = userDefaults.string(forKey: PreferenceKey.selectedCustomSound),
+           soundPlayer.customSoundExists(id: storedCustomSoundID) {
+            selectedCustomSoundID = storedCustomSoundID
+        }
 
         refreshSensorAvailability()
     }
@@ -131,8 +144,20 @@ final class SlapMonitor {
     }
 
     var soundStatus: String {
-        let title = selectedSoundDisplayTitle
+        let title = selectedSoundTitle
         return soundPlayer.isReady(for: selectedSound, customSoundID: selectedCustomSoundID) ? "\(title) ready" : "\(title) missing"
+    }
+
+    var selectedSoundTitle: String {
+        guard let selectedCustomSoundID else {
+            return selectedSound.title
+        }
+
+        return customSounds().first { $0.id == selectedCustomSoundID }?.title ?? selectedSound.title
+    }
+
+    var selectedSoundSymbol: String {
+        selectedCustomSoundID == nil ? selectedSound.symbol : "music.note"
     }
 
     var xAxis: Double {
@@ -234,30 +259,37 @@ final class SlapMonitor {
 
     func playTestSound() {
         soundPlayer.play(selectedSound, customSoundID: selectedCustomSoundID)
-        lastEventDescription = "\(selectedSoundDisplayTitle) sound test played"
+        lastEventDescription = "\(selectedSoundTitle) sound test played"
     }
 
-    func customSounds(for sound: SlapSound) -> [CustomSlapSound] {
-        soundPlayer.customSounds(for: sound)
+    func selectStandardSound(_ sound: SlapSound) {
+        selectedCustomSoundID = nil
+        selectedSound = sound
     }
 
-    func customSoundSelectionID(for sound: SlapSound) -> String {
-        customSoundSelections[sound] ?? ""
-    }
-
-    func setCustomSoundSelectionID(_ id: String, for sound: SlapSound) {
-        guard !id.isEmpty else {
-            customSoundSelections[sound] = nil
+    func selectCustomSound(id: String) {
+        guard soundPlayer.customSoundExists(id: id) else {
             return
         }
 
-        customSoundSelections[sound] = id
+        selectedCustomSoundID = id
     }
 
-    func importCustomSound(from url: URL, for sound: SlapSound) throws {
-        let importedSound = try soundPlayer.importCustomSound(from: url, for: sound)
-        customSoundSelections[sound] = importedSound.id
-        selectedSound = sound
+    func customSounds() -> [CustomSlapSound] {
+        soundPlayer.customSounds()
+    }
+
+    func importCustomSound(from url: URL) throws {
+        let importedSound = try soundPlayer.importCustomSound(from: url)
+        selectedCustomSoundID = importedSound.id
+    }
+
+    func removeCustomSound(id: String) throws {
+        try soundPlayer.removeCustomSound(id: id)
+
+        if selectedCustomSoundID == id {
+            selectedCustomSoundID = nil
+        }
     }
 
     private func handle(_ sample: MotionSample) {
@@ -275,42 +307,8 @@ final class SlapMonitor {
         if let event = detector.process(sample) {
             slapCount += 1
             soundPlayer.play(selectedSound, customSoundID: selectedCustomSoundID)
-            lastEventDescription = "\(selectedSoundDisplayTitle) \(slapCount) at \(event.impact.formatted(.number.precision(.fractionLength(2)))) g"
+            lastEventDescription = "\(selectedSoundTitle) \(slapCount) at \(event.impact.formatted(.number.precision(.fractionLength(2)))) g"
         }
-    }
-
-    private var selectedCustomSoundID: String? {
-        customSoundSelections[selectedSound]
-    }
-
-    private var selectedSoundDisplayTitle: String {
-        guard let selectedCustomSoundID else {
-            return selectedSound.title
-        }
-
-        return customSounds(for: selectedSound).first { $0.id == selectedCustomSoundID }?.title ?? selectedSound.title
-    }
-
-    private static func loadCustomSoundSelections(from userDefaults: UserDefaults) -> [SlapSound: String] {
-        guard let storedSelections = userDefaults.dictionary(forKey: PreferenceKey.customSoundSelections) as? [String: String] else {
-            return [:]
-        }
-
-        return storedSelections.reduce(into: [:]) { selections, item in
-            guard let sound = SlapSound(rawValue: item.key), !item.value.isEmpty else {
-                return
-            }
-
-            selections[sound] = item.value
-        }
-    }
-
-    private func persistCustomSoundSelections() {
-        let storedSelections = Dictionary(uniqueKeysWithValues: customSoundSelections.map { sound, id in
-            (sound.rawValue, id)
-        })
-
-        userDefaults.set(storedSelections, forKey: PreferenceKey.customSoundSelections)
     }
 
     private func updateSampleRate(now: TimeInterval) {

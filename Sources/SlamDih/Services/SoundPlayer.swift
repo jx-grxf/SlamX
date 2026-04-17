@@ -71,13 +71,13 @@ enum SoundPlayerError: LocalizedError {
         case .customDirectoryUnavailable:
             "Custom sound storage is not available."
         case .unsupportedAudioFile:
-            "Choose an audio file such as MP3, M4A, WAV, AIFF, or CAF."
+            "Choose an MP3 audio file."
         }
     }
 }
 
 final class SoundPlayer {
-    private static let supportedAudioExtensions = Set(["mp3", "m4a", "wav", "aif", "aiff", "caf"])
+    private static let supportedAudioExtensions = Set(["mp3"])
 
     private var bundledPlayers: [SlapSound: AVAudioPlayer] = [:]
     private var customPlayers: [URL: AVAudioPlayer] = [:]
@@ -100,7 +100,7 @@ final class SoundPlayer {
 
     func isReady(for sound: SlapSound, customSoundID: String?) -> Bool {
         if let customSoundID, !customSoundID.isEmpty {
-            guard let customURL = customURL(for: sound, id: customSoundID) else {
+            guard let customURL = customURL(id: customSoundID) else {
                 return false
             }
 
@@ -113,7 +113,7 @@ final class SoundPlayer {
     func play(_ sound: SlapSound, customSoundID: String? = nil) {
         if let customSoundID,
            !customSoundID.isEmpty,
-           let customURL = customURL(for: sound, id: customSoundID),
+           let customURL = customURL(id: customSoundID),
            playCustomSound(at: customURL) {
             return
         }
@@ -126,8 +126,8 @@ final class SoundPlayer {
         player.play()
     }
 
-    func customSounds(for sound: SlapSound) -> [CustomSlapSound] {
-        guard let directory = customDirectory(for: sound) else {
+    func customSounds() -> [CustomSlapSound] {
+        guard let directory = customDirectory() else {
             return []
         }
 
@@ -143,12 +143,12 @@ final class SoundPlayer {
             .map { CustomSlapSound(id: $0.lastPathComponent, title: $0.deletingPathExtension().lastPathComponent) }
     }
 
-    func importCustomSound(from sourceURL: URL, for sound: SlapSound) throws -> CustomSlapSound {
+    func importCustomSound(from sourceURL: URL) throws -> CustomSlapSound {
         guard Self.supportedAudioExtensions.contains(sourceURL.pathExtension.lowercased()) else {
             throw SoundPlayerError.unsupportedAudioFile
         }
 
-        guard let directory = customDirectory(for: sound) else {
+        guard let directory = customDirectory() else {
             throw SoundPlayerError.customDirectoryUnavailable
         }
 
@@ -171,12 +171,21 @@ final class SoundPlayer {
         )
     }
 
-    func customSoundExists(for sound: SlapSound, id: String) -> Bool {
-        guard let url = customURL(for: sound, id: id) else {
+    func customSoundExists(id: String) -> Bool {
+        guard let url = customURL(id: id) else {
             return false
         }
 
         return FileManager.default.fileExists(atPath: url.path)
+    }
+
+    func removeCustomSound(id: String) throws {
+        guard let url = customURL(id: id), FileManager.default.fileExists(atPath: url.path) else {
+            return
+        }
+
+        customPlayers[url] = nil
+        try FileManager.default.removeItem(at: url)
     }
 
     private static func resourceURL(for sound: SlapSound) -> URL? {
@@ -210,11 +219,11 @@ final class SoundPlayer {
         }
     }
 
-    private func customURL(for sound: SlapSound, id: String) -> URL? {
-        customDirectory(for: sound)?.appendingPathComponent(id)
+    private func customURL(id: String) -> URL? {
+        customDirectory()?.appendingPathComponent(id)
     }
 
-    private func customDirectory(for sound: SlapSound) -> URL? {
+    private func customDirectory() -> URL? {
         guard let applicationSupportURL = FileManager.default.urls(
             for: .applicationSupportDirectory,
             in: .userDomainMask
@@ -225,7 +234,6 @@ final class SoundPlayer {
         return applicationSupportURL
             .appendingPathComponent("SlamDih", isDirectory: true)
             .appendingPathComponent("CustomSounds", isDirectory: true)
-            .appendingPathComponent(sound.rawValue, isDirectory: true)
     }
 
     private func uniqueDestinationURL(for sourceURL: URL, in directory: URL) -> URL {
