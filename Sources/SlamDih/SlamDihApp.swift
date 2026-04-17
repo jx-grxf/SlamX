@@ -3,6 +3,7 @@ import SwiftUI
 
 @main
 struct SlamDihApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @Environment(\.openWindow) private var openWindow
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var monitor = SlapMonitor()
@@ -83,6 +84,12 @@ struct SlamDihApp: App {
         monitor.stopMonitoring()
         monitor.resetCounter()
         NSApp.activate(ignoringOtherApps: true)
+    }
+}
+
+private final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        false
     }
 }
 

@@ -78,6 +78,7 @@ final class SlapMonitor {
     @ObservationIgnored private var detector = SlapDetector()
     @ObservationIgnored private var sampleWindow: [TimeInterval] = []
     @ObservationIgnored private var previousSample: MotionSample?
+    @ObservationIgnored private var monitoringActivity: NSObjectProtocol?
 
     init() {
         refreshSensorAvailability()
@@ -141,9 +142,11 @@ final class SlapMonitor {
             detector.reset()
             previousSample = nil
             sampleWindow.removeAll()
+            beginMonitoringActivity()
             status = "Listening"
             isMonitoring = true
         } catch {
+            endMonitoringActivity()
             status = error.localizedDescription
             isMonitoring = false
         }
@@ -169,6 +172,7 @@ final class SlapMonitor {
 
     func stopMonitoring() {
         sensor.stop()
+        endMonitoringActivity()
         status = "Stopped"
         isMonitoring = false
     }
@@ -209,5 +213,25 @@ final class SlapMonitor {
         sampleWindow.append(now)
         sampleWindow.removeAll { now - $0 > 1.0 }
         samplesPerSecond = sampleWindow.count
+    }
+
+    private func beginMonitoringActivity() {
+        guard monitoringActivity == nil else {
+            return
+        }
+
+        monitoringActivity = ProcessInfo.processInfo.beginActivity(
+            options: [.userInitiatedAllowingIdleSystemSleep, .latencyCritical],
+            reason: "Keep SlamDih listening to MacBook motion reports."
+        )
+    }
+
+    private func endMonitoringActivity() {
+        guard let monitoringActivity else {
+            return
+        }
+
+        ProcessInfo.processInfo.endActivity(monitoringActivity)
+        self.monitoringActivity = nil
     }
 }

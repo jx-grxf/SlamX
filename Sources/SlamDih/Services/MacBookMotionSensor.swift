@@ -22,6 +22,10 @@ final class MacBookMotionSensor {
 
     private let reportBuffer: UnsafeMutablePointer<UInt8>
     private let reportLength: Int
+    private let callbackQueue = DispatchQueue(
+        label: "com.johannesgrof.slamdih.motion-sensor",
+        qos: .userInteractive
+    )
     private var device: IOHIDDevice?
     private var sampleHandler: SampleHandler?
 
@@ -60,11 +64,8 @@ final class MacBookMotionSensor {
             Unmanaged.passUnretained(self).toOpaque()
         )
 
-        IOHIDDeviceScheduleWithRunLoop(
-            device,
-            CFRunLoopGetMain(),
-            CFRunLoopMode.defaultMode.rawValue
-        )
+        IOHIDDeviceSetDispatchQueue(device, callbackQueue)
+        IOHIDDeviceActivate(device)
     }
 
     func stop() {
@@ -72,11 +73,7 @@ final class MacBookMotionSensor {
             return
         }
 
-        IOHIDDeviceUnscheduleFromRunLoop(
-            device,
-            CFRunLoopGetMain(),
-            CFRunLoopMode.defaultMode.rawValue
-        )
+        IOHIDDeviceCancel(device)
         IOHIDDeviceClose(device, IOOptionBits(kIOHIDOptionsTypeNone))
 
         self.device = nil
