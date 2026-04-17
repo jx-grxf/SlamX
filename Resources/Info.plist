@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright (c) 2026 Johannes Grof. MIT License.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SlamDih can optionally use the microphone as a local, not recommended fallback when no Apple SPU accelerometer is available. Audio is analyzed live on this Mac only and is not recorded or stored.</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>

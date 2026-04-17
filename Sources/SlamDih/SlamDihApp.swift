@@ -30,7 +30,7 @@ struct SlamDihApp: App {
                     monitor.toggleMonitoring()
                 }
                 .keyboardShortcut("r", modifiers: [.command])
-                .disabled(!monitor.sensorAvailability.canMonitor && !monitor.isMonitoring)
+                .disabled(!monitor.canMonitor && !monitor.isMonitoring)
 
                 Button("Test Slap Sound") {
                     monitor.playTestSound()
@@ -111,7 +111,7 @@ private struct MenuBarPanel: View {
         } label: {
             Label(monitor.monitoringActionTitle, systemImage: monitor.monitoringActionSymbol)
         }
-        .disabled(!monitor.sensorAvailability.canMonitor && !monitor.isMonitoring)
+        .disabled(!monitor.canMonitor && !monitor.isMonitoring)
 
         Button {
             monitor.playTestSound()
@@ -131,7 +131,11 @@ private struct MenuBarPanel: View {
         MenuBarStatButton(title: "Peak", value: "\(monitor.peakImpact.formatted(.number.precision(.fractionLength(2)))) g", symbol: "chart.line.uptrend.xyaxis")
         MenuBarStatButton(title: "Impact", value: "\(monitor.currentImpact.formatted(.number.precision(.fractionLength(2)))) g", symbol: "bolt.fill")
         MenuBarStatButton(title: "Rate", value: "\(monitor.samplesPerSecond) Hz", symbol: "speedometer")
-        MenuBarStatButton(title: "Sensor", value: monitor.sensorStatusTitle, symbol: monitor.sensorAvailability.systemImage)
+        MenuBarStatButton(
+            title: "Sensor",
+            value: monitor.sensorStatusTitle,
+            symbol: monitor.detectionInputMode == .microphone ? monitor.detectionInputMode.symbol : monitor.sensorAvailability.systemImage
+        )
         MenuBarStatButton(title: "Sound", value: monitor.selectedSoundTitle, symbol: monitor.selectedSoundSymbol)
     }
 }

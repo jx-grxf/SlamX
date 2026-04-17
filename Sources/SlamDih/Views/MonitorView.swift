@@ -71,7 +71,10 @@ struct MonitorView: View {
             Spacer()
 
             HStack(spacing: 10) {
-                SensorHealthBadge(availability: monitor.sensorAvailability)
+                SensorHealthBadge(
+                    availability: monitor.sensorAvailability,
+                    inputMode: monitor.detectionInputMode
+                )
                 StatusPill(isActive: monitor.isMonitoring, text: monitor.status)
             }
         }
@@ -173,7 +176,7 @@ struct ControlPanel: View {
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .tint(monitor.isMonitoring ? .red : .mint)
-                .disabled(!monitor.sensorAvailability.canMonitor && !monitor.isMonitoring)
+                .disabled(!monitor.canMonitor && !monitor.isMonitoring)
 
                 Button {
                     monitor.playTestSound()
@@ -519,13 +522,14 @@ struct PanelHeader: View {
 
 struct SensorHealthBadge: View {
     let availability: SensorAvailability
+    var inputMode: DetectionInputMode = .accelerometer
 
     var body: some View {
         HStack(spacing: 7) {
-            Image(systemName: availability.systemImage)
+            Image(systemName: symbol)
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(tint)
-            Text(availability.compactTitle)
+            Text(title)
                 .lineLimit(1)
         }
         .font(.callout.weight(.semibold))
@@ -533,17 +537,33 @@ struct SensorHealthBadge: View {
         .padding(.vertical, 8)
         .background(.regularMaterial, in: Capsule())
         .foregroundStyle(.primary)
-        .help(availability.title)
+        .help(help)
+    }
+
+    private var title: String {
+        inputMode == .microphone ? "Mic Fallback" : availability.compactTitle
+    }
+
+    private var symbol: String {
+        inputMode == .microphone ? inputMode.symbol : availability.systemImage
+    }
+
+    private var help: String {
+        inputMode == .microphone ? "Microphone fallback is not recommended." : availability.title
     }
 
     private var tint: Color {
+        if inputMode == .microphone {
+            return .yellow
+        }
+
         switch availability {
         case .checking:
-            .cyan
+            return .cyan
         case .detected:
-            .mint
+            return .mint
         case .unsupported:
-            .red
+            return .red
         }
     }
 }

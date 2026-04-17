@@ -50,6 +50,7 @@ It is built as a private, local-first macOS tool. No sensor data leaves the mach
 |---|---|
 | Native macOS UI | SwiftUI app with `NavigationSplitView`, toolbar actions, settings, and a menu bar extra |
 | Apple SPU sensor access | Reads the MacBook accelerometer through IOKit HID reports |
+| Microphone fallback | Optional, not recommended local fallback for unsupported Macs; audio is analyzed live and never recorded |
 | Live telemetry | Shows slap count, current impact, peak impact, sample rate, axis values, and raw HID bytes |
 | Adjustable detection | Sensitivity slider and calibration presets for soft, balanced, and hard impacts |
 | Local audio | Bundles slap, fart, sexy, yowch, and whip sounds as SwiftPM resources and plays the selected one with `AVAudioPlayer` |
@@ -73,6 +74,8 @@ SlamDih wraps that low-level stream in a tiny app with visible telemetry so cali
 4. Adjust the threshold until normal desk movement is ignored.
 5. Slap the MacBook lightly enough to be funny, not expensive.
 6. SlamDih plays the sound and increments the counter.
+
+If no accessible Apple SPU accelerometer is found during onboarding, SlamDih explains that the Mac is unsupported for the recommended hardware mode. A microphone fallback can be enabled after accepting separate privacy, accuracy, battery, and not-recommended warnings. The fallback analyzes live microphone levels locally, does not store audio, and can still trigger on speech or loud noises.
 
 ---
 
@@ -129,6 +132,7 @@ open SlamDih.xcodeproj
 ## Usage
 
 - On first launch, complete the availability check, trigger the onboarding sound test with one slap, then accept the agreement.
+- If onboarding reports an unsupported Mac, use the optional microphone fallback only after reading and accepting every warning.
 - Start monitoring from the toolbar, menu bar extra, or `Command-R`.
 - Use the threshold slider to tune detection.
 - Choose `Slap`, `Fart`, `Yowch`, or `Whip` in the sound picker; enable NSFW sounds in Settings to unlock `Sexy`.

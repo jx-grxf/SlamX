@@ -45,6 +45,40 @@ enum SensorAvailability: Equatable {
     }
 }
 
+enum DetectionInputMode: String, CaseIterable, Identifiable {
+    case accelerometer
+    case microphone
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .accelerometer:
+            "Accelerometer"
+        case .microphone:
+            "Microphone Fallback"
+        }
+    }
+
+    var settingsTitle: String {
+        switch self {
+        case .accelerometer:
+            "Accelerometer (Recommended)"
+        case .microphone:
+            "Microphone (Not Recommended)"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .accelerometer:
+            "waveform.path.ecg"
+        case .microphone:
+            "mic.fill"
+        }
+    }
+}
+
 @MainActor
 @Observable
 final class SlapMonitor {
@@ -56,6 +90,11 @@ final class SlapMonitor {
         static let selectedSound = "selectedSound"
         static let selectedCustomSound = "selectedCustomSound"
         static let customAudioDisclaimerAccepted = "customAudioDisclaimerAccepted"
+        static let detectionInputMode = "detectionInputMode"
+        static let microphoneFallbackNotRecommendedAccepted = "microphoneFallbackNotRecommendedAccepted"
+        static let microphoneFallbackPrivacyAccepted = "microphoneFallbackPrivacyAccepted"
+        static let microphoneFallbackAccuracyAccepted = "microphoneFallbackAccuracyAccepted"
+        static let microphoneFallbackBatteryAccepted = "microphoneFallbackBatteryAccepted"
     }
 
     private enum Timing {
@@ -64,8 +103,22 @@ final class SlapMonitor {
 
     var isMonitoring = false
     var status = "Idle"
-    var sensorName = "Apple SPU Accelerometer"
     var sensorAvailability: SensorAvailability = .checking
+    var isSensorUnsupportedTestMode = false {
+        didSet {
+            refreshSensorAvailability()
+        }
+    }
+    var detectionInputMode: DetectionInputMode = .accelerometer {
+        didSet {
+            userDefaults.set(detectionInputMode.rawValue, forKey: PreferenceKey.detectionInputMode)
+
+            if oldValue != detectionInputMode {
+                stopMonitoring()
+                refreshSensorAvailability()
+            }
+        }
+    }
     var slapCount = 0
     var threshold = 0.75 {
         didSet {
@@ -115,8 +168,29 @@ final class SlapMonitor {
             userDefaults.set(hasAcceptedCustomAudioDisclaimer, forKey: PreferenceKey.customAudioDisclaimerAccepted)
         }
     }
+    var hasAcceptedMicrophoneNotRecommendedWarning = false {
+        didSet {
+            userDefaults.set(hasAcceptedMicrophoneNotRecommendedWarning, forKey: PreferenceKey.microphoneFallbackNotRecommendedAccepted)
+        }
+    }
+    var hasAcceptedMicrophonePrivacyNotice = false {
+        didSet {
+            userDefaults.set(hasAcceptedMicrophonePrivacyNotice, forKey: PreferenceKey.microphoneFallbackPrivacyAccepted)
+        }
+    }
+    var hasAcceptedMicrophoneAccuracyWarning = false {
+        didSet {
+            userDefaults.set(hasAcceptedMicrophoneAccuracyWarning, forKey: PreferenceKey.microphoneFallbackAccuracyAccepted)
+        }
+    }
+    var hasAcceptedMicrophoneBatteryWarning = false {
+        didSet {
+            userDefaults.set(hasAcceptedMicrophoneBatteryWarning, forKey: PreferenceKey.microphoneFallbackBatteryAccepted)
+        }
+    }
 
     @ObservationIgnored private let sensor = MacBookMotionSensor()
+    @ObservationIgnored private let microphoneSensor = MicrophoneImpactSensor()
     @ObservationIgnored private let soundPlayer = SoundPlayer()
     @ObservationIgnored private let userDefaults: UserDefaults
     @ObservationIgnored private var detector = SlapDetector()
@@ -128,6 +202,15 @@ final class SlapMonitor {
         self.userDefaults = userDefaults
         isNSFWSoundsEnabled = userDefaults.bool(forKey: PreferenceKey.nsfwSoundsEnabled)
         hasAcceptedCustomAudioDisclaimer = userDefaults.bool(forKey: PreferenceKey.customAudioDisclaimerAccepted)
+        hasAcceptedMicrophoneNotRecommendedWarning = userDefaults.bool(forKey: PreferenceKey.microphoneFallbackNotRecommendedAccepted)
+        hasAcceptedMicrophonePrivacyNotice = userDefaults.bool(forKey: PreferenceKey.microphoneFallbackPrivacyAccepted)
+        hasAcceptedMicrophoneAccuracyWarning = userDefaults.bool(forKey: PreferenceKey.microphoneFallbackAccuracyAccepted)
+        hasAcceptedMicrophoneBatteryWarning = userDefaults.bool(forKey: PreferenceKey.microphoneFallbackBatteryAccepted)
+
+        if let storedInputMode = userDefaults.string(forKey: PreferenceKey.detectionInputMode),
+           let inputMode = DetectionInputMode(rawValue: storedInputMode) {
+            detectionInputMode = inputMode
+        }
 
         if let storedSound = userDefaults.string(forKey: PreferenceKey.selectedSound),
            let sound = SlapSound(rawValue: storedSound),
@@ -164,6 +247,39 @@ final class SlapMonitor {
         selectedCustomSoundID == nil ? selectedSound.symbol : "music.note"
     }
 
+    var sensorName: String {
+        switch detectionInputMode {
+        case .accelerometer:
+            "Apple SPU Accelerometer"
+        case .microphone:
+            "Microphone Fallback"
+        }
+    }
+
+    var canMonitor: Bool {
+        switch detectionInputMode {
+        case .accelerometer:
+            sensorAvailability.canMonitor
+        case .microphone:
+            hasAcceptedMicrophoneFallbackRequirements
+        }
+    }
+
+    var hasAcceptedMicrophoneFallbackRequirements: Bool {
+        hasAcceptedMicrophoneNotRecommendedWarning &&
+            hasAcceptedMicrophonePrivacyNotice &&
+            hasAcceptedMicrophoneAccuracyWarning &&
+            hasAcceptedMicrophoneBatteryWarning
+    }
+
+    var unsupportedSensorExplanation: String {
+        if isSensorUnsupportedTestMode {
+            return "Test mode is simulating a Mac without the Apple SPU accelerometer. This is only for testing the unsupported-device flow."
+        }
+
+        return "SlamDih could not find an accessible Apple SPU accelerometer. Some Macs, including MacBook Air M1-style configurations, do not expose the sensor SlamDih needs for the recommended hardware mode."
+    }
+
     var xAxis: Double {
         currentSample.acceleration.x
     }
@@ -189,22 +305,42 @@ final class SlapMonitor {
     }
 
     var sensorStatusTitle: String {
-        sensorAvailability.compactTitle
+        switch detectionInputMode {
+        case .accelerometer:
+            sensorAvailability.compactTitle
+        case .microphone:
+            hasAcceptedMicrophoneFallbackRequirements ? "Mic Fallback" : "Mic Agreement"
+        }
     }
 
     func toggleMonitoring() {
-        isMonitoring ? stopMonitoring() : startMonitoring()
+        if isMonitoring {
+            stopMonitoring()
+        } else {
+            Task {
+                await startMonitoring()
+            }
+        }
     }
 
-    func startMonitoring() {
+    func startMonitoring() async {
         guard !isMonitoring else {
             status = "Listening"
             return
         }
 
+        switch detectionInputMode {
+        case .accelerometer:
+            startAccelerometerMonitoring()
+        case .microphone:
+            await startMicrophoneMonitoring()
+        }
+    }
+
+    private func startAccelerometerMonitoring() {
         refreshSensorAvailability()
 
-        guard sensorAvailability.canMonitor else {
+        guard canMonitor else {
             status = "Unsupported Mac"
             return
         }
@@ -228,6 +364,38 @@ final class SlapMonitor {
         }
     }
 
+    private func startMicrophoneMonitoring() async {
+        guard hasAcceptedMicrophoneFallbackRequirements else {
+            status = "Microphone agreement required"
+            return
+        }
+
+        status = "Requesting microphone"
+
+        guard await MicrophoneImpactSensor.requestAccess() else {
+            status = "Microphone permission denied"
+            return
+        }
+
+        do {
+            try microphoneSensor.start { [weak self] sample in
+                Task { @MainActor in
+                    self?.handle(sample)
+                }
+            }
+            detector.reset()
+            previousSample = nil
+            sampleWindow.removeAll()
+            beginMonitoringActivity()
+            status = "Listening via microphone"
+            isMonitoring = true
+        } catch {
+            endMonitoringActivity()
+            status = error.localizedDescription
+            isMonitoring = false
+        }
+    }
+
     func checkSensorAvailability() async {
         sensorAvailability = .checking
         status = "Checking sensor"
@@ -243,16 +411,22 @@ final class SlapMonitor {
 
     func refreshSensorAvailability() {
         guard !isMonitoring else {
-            sensorAvailability = .detected
+            sensorAvailability = detectionInputMode == .accelerometer ? .detected : sensorAvailability
             return
         }
 
-        sensorAvailability = MacBookMotionSensor.isAccelerometerAvailable() ? .detected : .unsupported
-        status = sensorAvailability.canMonitor ? "Ready" : "Unsupported Mac"
+        sensorAvailability = isSensorUnsupportedTestMode || !MacBookMotionSensor.isAccelerometerAvailable() ? .unsupported : .detected
+
+        if detectionInputMode == .microphone {
+            status = hasAcceptedMicrophoneFallbackRequirements ? "Microphone fallback ready" : "Microphone agreement required"
+        } else {
+            status = sensorAvailability.canMonitor ? "Ready" : "Unsupported Mac"
+        }
     }
 
     func stopMonitoring() {
         sensor.stop()
+        microphoneSensor.stop()
         endMonitoringActivity()
         status = "Stopped"
         isMonitoring = false
@@ -320,6 +494,22 @@ final class SlapMonitor {
         }
     }
 
+    private func handle(_ sample: MicrophoneImpactSample) {
+        currentImpact = sample.impact
+        peakImpact = max(peakImpact, currentImpact)
+        currentSample = MotionSample(
+            timestamp: sample.timestamp,
+            acceleration: MotionVector(x: 0, y: 0, z: sample.impact),
+            rawReport: []
+        )
+        rawReport = "Microphone fallback analyzes live input levels only. Audio is not stored."
+        updateSampleRate(now: sample.timestamp)
+
+        slapCount += 1
+        soundPlayer.play(selectedSound, customSoundID: selectedCustomSoundID)
+        lastEventDescription = "\(selectedSoundTitle) \(slapCount) from microphone impact \(sample.impact.formatted(.number.precision(.fractionLength(2))))"
+    }
+
     private func updateSampleRate(now: TimeInterval) {
         sampleWindow.append(now)
         sampleWindow.removeAll { now - $0 > 1.0 }
@@ -333,7 +523,7 @@ final class SlapMonitor {
 
         monitoringActivity = ProcessInfo.processInfo.beginActivity(
             options: [.userInitiatedAllowingIdleSystemSleep, .latencyCritical],
-            reason: "Keep SlamDih listening to MacBook motion reports."
+            reason: "Keep SlamDih listening for local impact events."
         )
     }
 

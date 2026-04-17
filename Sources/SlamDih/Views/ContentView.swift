@@ -46,7 +46,7 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: monitor.isMonitoring ? "stop.fill" : "play.fill")
                 }
-                .disabled(!monitor.sensorAvailability.canMonitor && !monitor.isMonitoring)
+                .disabled(!monitor.canMonitor && !monitor.isMonitoring)
                 .help(monitor.isMonitoring ? "Stop monitoring" : "Start monitoring")
             }
         }
@@ -137,7 +137,7 @@ private struct SidebarStatusView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 9) {
-                Image(systemName: monitor.sensorAvailability.systemImage)
+                Image(systemName: sensorSymbol)
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(sensorTint)
 
@@ -170,13 +170,21 @@ private struct SidebarStatusView: View {
     }
 
     private var sensorTint: Color {
+        if monitor.detectionInputMode == .microphone {
+            return .yellow
+        }
+
         switch monitor.sensorAvailability {
         case .checking:
-            .cyan
+            return .cyan
         case .detected:
-            .mint
+            return .mint
         case .unsupported:
-            .red
+            return .red
         }
+    }
+
+    private var sensorSymbol: String {
+        monitor.detectionInputMode == .microphone ? monitor.detectionInputMode.symbol : monitor.sensorAvailability.systemImage
     }
 }

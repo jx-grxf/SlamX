@@ -32,6 +32,7 @@
 		B10000000000000000000017 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = A30000000000000000000002 /* Sparkle */; };
 		B10000000000000000000018 /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001A /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 */; };
 		B10000000000000000000019 /* Sources/SlamDih/Resources/WhipSoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001B /* Sources/SlamDih/Resources/WhipSoundEffect.mp3 */; };
+		B1000000000000000000001A /* Sources/SlamDih/Services/MicrophoneImpactSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001C /* Sources/SlamDih/Services/MicrophoneImpactSensor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,7 @@
 		F10000000000000000000019 /* Resources/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Resources/Info.plist; sourceTree = "<group>"; };
 		F1000000000000000000001A /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/YowchSoundEffect.mp3; sourceTree = "<group>"; };
 		F1000000000000000000001B /* Sources/SlamDih/Resources/WhipSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/WhipSoundEffect.mp3; sourceTree = "<group>"; };
+		F1000000000000000000001C /* Sources/SlamDih/Services/MicrophoneImpactSensor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Services/MicrophoneImpactSensor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				F10000000000000000000002 /* Sources/SlamDih/Services/MacBookMotionSensor.swift */,
+				F1000000000000000000001C /* Sources/SlamDih/Services/MicrophoneImpactSensor.swift */,
 				F10000000000000000000003 /* Sources/SlamDih/Services/SoundPlayer.swift */,
 				F10000000000000000000018 /* Sources/SlamDih/Services/UpdateController.swift */,
 			);
@@ -310,6 +313,7 @@
 				B10000000000000000000014 /* Sources/SlamDih/Views/OnboardingView.swift in Sources */,
 				B10000000000000000000009 /* Sources/SlamDih/Views/SettingsView.swift in Sources */,
 				B10000000000000000000016 /* Sources/SlamDih/Services/UpdateController.swift in Sources */,
+				B1000000000000000000001A /* Sources/SlamDih/Services/MicrophoneImpactSensor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
