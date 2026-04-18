@@ -214,6 +214,12 @@ Build the release DMG:
 ./scripts/create-dmg.sh 0.2.1 3
 ```
 
+Prepare the full GitHub release asset set:
+
+```bash
+./scripts/create-release-assets.sh 0.2.1 3
+```
+
 Build through Xcode:
 
 ```bash

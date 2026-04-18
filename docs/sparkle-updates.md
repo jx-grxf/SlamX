@@ -38,6 +38,14 @@ Generate the appcast:
 ./scripts/generate-appcast.sh .build/dmg
 ```
 
+For a GitHub release, prefer the combined asset script:
+
+```bash
+./scripts/create-release-assets.sh 0.2.0 2
+```
+
+This creates the DMG, checksum, appcast, and source archives with `SlamX` asset names. The script fails if a legacy `SlamDih*` release asset name is produced.
+
 Optional but recommended: add release notes next to the DMG before generating the appcast.
 The filename must match the DMG basename:
 
@@ -52,6 +60,8 @@ Upload these release assets:
 - `.build/dmg/SlamX-0.2.0.dmg`
 - `.build/dmg/SlamX-0.2.0.dmg.sha256`
 - `.build/dmg/appcast.xml`
+- `.build/dmg/SlamX-0.2.0-source.zip`
+- `.build/dmg/SlamX-0.2.0-source.tar.gz`
 
 The app checks this feed:
 
