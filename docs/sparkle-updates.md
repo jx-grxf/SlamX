@@ -22,6 +22,15 @@ Generate the appcast:
 ./scripts/generate-appcast.sh .build/dmg
 ```
 
+Optional but recommended: add release notes next to the DMG before generating the appcast.
+The filename must match the DMG basename:
+
+```text
+.build/dmg/SlamDih-0.2.0.md
+```
+
+These notes are embedded into `appcast.xml`, so Sparkle can show the changelog in its update window without another release asset.
+
 Upload these release assets:
 
 - `.build/dmg/SlamDih-0.2.0.dmg`

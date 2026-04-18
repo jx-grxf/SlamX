@@ -30,6 +30,7 @@ struct SlamDihApp: App {
                 hotKeyController.register {
                     monitor.toggleMute()
                 }
+                updateController.refreshUpdateStatusIfNeeded()
             }
         }
         .commands {
@@ -73,7 +74,11 @@ struct SlamDihApp: App {
         }
 
         MenuBarExtra("SlamDih", systemImage: "hand.raised.fill") {
-            MenuBarPanel(monitor: monitor, showApp: showApp)
+            MenuBarPanel(
+                monitor: monitor,
+                updateController: updateController,
+                showApp: showApp
+            )
         }
         .menuBarExtraStyle(.menu)
     }
@@ -155,9 +160,21 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
 
 private struct MenuBarPanel: View {
     @Bindable var monitor: SlapMonitor
+    let updateController: UpdateController
     let showApp: () -> Void
 
     var body: some View {
+        if let updateTitle = updateController.menuItemTitle {
+            Button {
+                updateController.showUpdateDetails()
+            } label: {
+                Label(updateTitle, systemImage: updateController.menuItemSystemImage)
+            }
+            .help(updateController.menuItemHelp)
+
+            Divider()
+        }
+
         Button {
             showApp()
         } label: {

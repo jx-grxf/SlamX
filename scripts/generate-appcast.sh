@@ -15,6 +15,6 @@ if [[ ! -x "$GENERATE_APPCAST" ]]; then
   exit 1
 fi
 
-"$GENERATE_APPCAST" "$UPDATES_DIR"
+"$GENERATE_APPCAST" --embed-release-notes "$UPDATES_DIR"
 
 echo "Generated $UPDATES_DIR/appcast.xml"
