@@ -48,8 +48,6 @@ cat > "$CONTENTS_DIR/Info.plist" <<PLIST
   <string>14.0</string>
   <key>NSHighResolutionCapable</key>
   <true/>
-  <key>NSMicrophoneUsageDescription</key>
-  <string>SlamDih can optionally use the microphone as a local, not recommended fallback when no Apple SPU accelerometer is available. Audio is analyzed live on this Mac only and is not recorded or stored.</string>
 </dict>
 </plist>
 PLIST
