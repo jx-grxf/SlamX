@@ -14,7 +14,8 @@ if [[ -z "$VERSION" || -z "$BUILD_NUMBER" ]]; then
 fi
 
 "$ROOT_DIR/scripts/create-dmg.sh" "$VERSION" "$BUILD_NUMBER"
-"$ROOT_DIR/scripts/generate-appcast.sh" "$DMG_ROOT"
+APPCAST_DOWNLOAD_URL_PREFIX="${APPCAST_DOWNLOAD_URL_PREFIX:-https://github.com/jx-grxf/SlamX/releases/download/v$VERSION}" \
+  "$ROOT_DIR/scripts/generate-appcast.sh" "$DMG_ROOT"
 
 git -C "$ROOT_DIR" archive \
   --format=zip \

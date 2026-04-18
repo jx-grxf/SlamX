@@ -45,6 +45,7 @@ For a GitHub release, prefer the combined asset script:
 ```
 
 This creates the DMG, checksum, appcast, and source archives with `SlamX` asset names. The script fails if a legacy `SlamDih*` release asset name is produced.
+The appcast DMG enclosure uses the concrete GitHub release tag URL by default, so clients do not depend on the mutable `latest` redirect while downloading the update.
 
 Optional but recommended: add release notes next to the DMG before generating the appcast.
 The filename must match the DMG basename:

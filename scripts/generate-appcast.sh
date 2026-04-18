@@ -5,6 +5,11 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UPDATES_DIR="${1:-$ROOT_DIR/.build/dmg}"
 SPARKLE_TOOLS_DIR="$ROOT_DIR/.build/artifacts/sparkle/Sparkle/bin"
 GENERATE_APPCAST="$SPARKLE_TOOLS_DIR/generate_appcast"
+APPCAST_ARGS=(--embed-release-notes)
+
+if [[ -n "${APPCAST_DOWNLOAD_URL_PREFIX:-}" ]]; then
+  APPCAST_ARGS+=(--download-url-prefix "$APPCAST_DOWNLOAD_URL_PREFIX")
+fi
 
 if [[ ! -x "$GENERATE_APPCAST" ]]; then
   swift package --package-path "$ROOT_DIR" resolve
@@ -15,6 +20,6 @@ if [[ ! -x "$GENERATE_APPCAST" ]]; then
   exit 1
 fi
 
-"$GENERATE_APPCAST" --embed-release-notes "$UPDATES_DIR"
+"$GENERATE_APPCAST" "${APPCAST_ARGS[@]}" "$UPDATES_DIR"
 
 echo "Generated $UPDATES_DIR/appcast.xml"
