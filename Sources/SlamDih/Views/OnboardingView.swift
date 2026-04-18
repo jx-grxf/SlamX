@@ -7,7 +7,13 @@ struct OnboardingView: View {
     @State private var didStartCheck = false
     @State private var scannerRotation = 0.0
     @State private var scannerPulse = false
-    @State private var hasAcceptedDamageDisclaimer = false
+    @State private var isSoundTestActive = false
+    @State private var hasCompletedSoundTest = false
+    @State private var isShowingCalibration = false
+    @State private var hasCompletedCalibration = false
+    @State private var soundTestSlapBaseline = 0
+    @State private var thresholdBeforeSoundTest: Double?
+    @State private var showsUnsupportedTestModeNotice = false
 
     var body: some View {
         ZStack {
@@ -25,7 +31,7 @@ struct OnboardingView: View {
                                 .font(.system(size: 18, weight: .bold, design: .rounded))
                                 .foregroundStyle(.mint)
 
-                            Text(monitor.sensorAvailability.title)
+                            Text(title)
                                 .font(.system(size: 52, weight: .bold, design: .rounded))
                                 .lineLimit(2)
                                 .minimumScaleFactor(0.78)
@@ -45,6 +51,8 @@ struct OnboardingView: View {
 
                     SensorScannerView(
                         availability: monitor.sensorAvailability,
+                        isSoundTestActive: isSoundTestActive,
+                        hasCompletedSoundTest: hasCompletedSoundTest,
                         rotation: scannerRotation,
                         isPulsing: scannerPulse
                     )
@@ -52,10 +60,12 @@ struct OnboardingView: View {
 
                 Spacer(minLength: 30)
 
-                damageDisclaimer
-                    .padding(.bottom, 12)
-
-                diagnosticsRow
+                ProgressStepsView(
+                    sensorAvailability: monitor.sensorAvailability,
+                    hasCompletedSoundTest: hasCompletedSoundTest,
+                    hasCompletedCalibration: hasCompletedCalibration,
+                    canStart: canStartApp
+                )
             }
             .padding(.horizontal, 48)
             .padding(.top, 38)
@@ -75,7 +85,28 @@ struct OnboardingView: View {
                 scannerRotation = 360
             }
 
-            await monitor.checkSensorAvailability()
+            await runAvailabilityCheck()
+        }
+        .alert("Unsupported-device test mode", isPresented: $showsUnsupportedTestModeNotice) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("SlamDih is now simulating a Mac without the Apple SPU accelerometer. This is only for testing the unsupported-device flow; it does not mean this Mac is actually unsupported.")
+        }
+        .sheet(isPresented: $isShowingCalibration) {
+            CalibrationView(monitor: monitor) {
+                hasCompletedCalibration = true
+            }
+            .frame(width: 720, height: 620)
+        }
+        .onChange(of: monitor.slapCount) { _, newValue in
+            guard isSoundTestActive, !hasCompletedSoundTest, newValue > soundTestSlapBaseline else {
+                return
+            }
+
+            completeSoundTest()
+        }
+        .onDisappear {
+            stopSoundTestIfNeeded()
         }
     }
 
@@ -85,6 +116,9 @@ struct OnboardingView: View {
                 .font(.headline.weight(.bold))
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(.white)
+                .onTapGesture(count: 3) {
+                    enableUnsupportedTestMode()
+                }
 
             Spacer()
 
@@ -93,157 +127,441 @@ struct OnboardingView: View {
     }
 
     private var actionRow: some View {
-        HStack(spacing: 12) {
-            Button {
-                startApp()
-            } label: {
-                Label("Start using SlamDih", systemImage: "arrow.right.circle.fill")
-                    .frame(width: 230)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                Button {
+                    finishOnboarding()
+                    startApp()
+                } label: {
+                    Label("Start using SlamDih", systemImage: "arrow.right.circle.fill")
+                        .frame(width: 230)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(.mint)
+                .disabled(!canStartApp)
+
+                Button {
+                    Task {
+                        await runAvailabilityCheck()
+                    }
+                } label: {
+                    Label("Check Again", systemImage: "arrow.clockwise")
+                        .frame(width: 144)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .disabled(monitor.sensorAvailability == .checking)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .tint(.mint)
-            .disabled(!monitor.sensorAvailability.canMonitor || !hasAcceptedDamageDisclaimer)
 
             Button {
-                Task {
-                    await monitor.checkSensorAvailability()
-                }
+                isShowingCalibration = true
             } label: {
-                Label("Check Again", systemImage: "arrow.clockwise")
-                    .frame(width: 144)
+                HStack(spacing: 10) {
+                    Label("Calibrate Threshold", systemImage: "slider.horizontal.3")
+                    BetaBadge()
+                }
+                .frame(width: 230)
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
-            .disabled(monitor.sensorAvailability == .checking)
+            .disabled(!hasCompletedSoundTest || !monitor.canMonitor)
         }
     }
 
-    private var diagnosticsRow: some View {
-        HStack(spacing: 12) {
-            OnboardingStatusItem(
-                title: "Sensor",
-                value: monitor.sensorStatusTitle,
-                symbol: monitor.sensorAvailability.systemImage,
-                tint: sensorTint
-            )
-
-            OnboardingStatusItem(
-                title: "Audio",
-                value: monitor.soundStatus,
-                symbol: monitor.selectedSound.symbol,
-                tint: .orange
-            )
-
-            OnboardingStatusItem(
-                title: "Engine",
-                value: "Local HID",
-                symbol: "memorychip",
-                tint: .cyan
-            )
-        }
+    private var canStartApp: Bool {
+        monitor.canMonitor && hasCompletedSoundTest
     }
 
-    private var damageDisclaimer: some View {
-        Toggle(isOn: $hasAcceptedDamageDisclaimer) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("Important legal-ish wisdom:")
-                    .font(.callout.weight(.bold))
-                    .foregroundStyle(.white)
-
-                Text("I accept that SlamDih is not a MacBook insurance policy and Johannes is not liable if I hit this thing like I am trying to mine diamonds.")
-                    .font(.callout.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.72))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .toggleStyle(.checkbox)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(.mint.opacity(hasAcceptedDamageDisclaimer ? 0.46 : 0.18), lineWidth: 1)
+    private var title: String {
+        switch monitor.sensorAvailability {
+        case .checking:
+            return "Checking accelerometer"
+        case .detected where hasCompletedSoundTest:
+            return "Ready to monitor"
+        case .detected:
+            return "Verify detection"
+        case .unsupported:
+            return "This Mac is not supported"
         }
     }
 
     private var description: String {
         switch monitor.sensorAvailability {
         case .checking:
-            "SlamDih is checking the Apple SPU accelerometer required for live impact monitoring."
+            return "SlamDih is checking whether this Mac exposes the Apple SPU motion sensor."
+        case .detected where hasCompletedSoundTest && hasCompletedCalibration:
+            return "Detection is verified and the beta calibration has tuned the trigger threshold."
+        case .detected where hasCompletedSoundTest:
+            return "The local sensor and audio path are working. You can continue to the monitor."
+        case .detected where isSoundTestActive:
+            return "Apply one light tap to verify that the sensor can detect a clear impact."
         case .detected:
-            "Everything needed for live slap detection is available on this Mac."
+            return "The motion sensor is available. SlamDih will run one quick local detection check."
         case .unsupported:
-            "SlamDih needs a MacBook with an Apple SPU accelerometer. This Mac cannot run live monitoring."
+            return monitor.unsupportedSensorExplanation
         }
     }
 
-    private var sensorTint: Color {
-        switch monitor.sensorAvailability {
-        case .checking:
-            .cyan
-        case .detected:
-            .mint
-        case .unsupported:
-            .orange
+    private var soundTestStatusTitle: String {
+        if hasCompletedSoundTest {
+            return "Passed"
         }
+
+        if isSoundTestActive {
+            return "Tap now"
+        }
+
+        return monitor.sensorAvailability == .checking ? "Waiting" : "Pending"
+    }
+
+    private var soundTestSymbol: String {
+        hasCompletedSoundTest ? "checkmark.circle.fill" : "speaker.wave.2.fill"
+    }
+
+    private var soundTestTint: Color {
+        if hasCompletedSoundTest {
+            return .mint
+        }
+
+        return isSoundTestActive ? .yellow : .white.opacity(0.56)
+    }
+
+    private func runAvailabilityCheck() async {
+        resetOnboardingGate()
+        await monitor.checkSensorAvailability()
+
+        await startSoundTestIfPossible()
+    }
+
+    private func startSoundTestIfPossible() async {
+        guard monitor.canMonitor else {
+            return
+        }
+
+        scannerPulse = true
+        thresholdBeforeSoundTest = monitor.threshold
+        monitor.threshold = SlapMonitor.thresholdRange.lowerBound
+
+        soundTestSlapBaseline = monitor.slapCount
+        isSoundTestActive = true
+        await monitor.startMonitoring()
+
+        if monitor.isMonitoring {
+            monitor.status = "Sound test listening"
+        } else {
+            isSoundTestActive = false
+            restoreThresholdIfNeeded()
+        }
+    }
+
+    private func completeSoundTest() {
+        isSoundTestActive = false
+        hasCompletedSoundTest = true
+        scannerPulse = false
+        scannerRotation = 0
+        monitor.stopMonitoring()
+        restoreThresholdIfNeeded()
+        monitor.status = "Sound test passed"
+
+        withAnimation(.easeInOut(duration: 0.85)) {
+            scannerRotation = 360
+        }
+    }
+
+    private func enableUnsupportedTestMode() {
+        stopSoundTestIfNeeded()
+        hasCompletedSoundTest = false
+        monitor.isSensorUnsupportedTestMode = true
+        showsUnsupportedTestModeNotice = true
+    }
+
+    private func resetOnboardingGate() {
+        hasCompletedSoundTest = false
+        hasCompletedCalibration = false
+        stopSoundTestIfNeeded()
+    }
+
+    private func finishOnboarding() {
+        stopSoundTestIfNeeded()
+        monitor.resetCounter()
+    }
+
+    private func stopSoundTestIfNeeded() {
+        if isSoundTestActive || monitor.isMonitoring {
+            monitor.stopMonitoring()
+        }
+
+        isSoundTestActive = false
+        restoreThresholdIfNeeded()
+    }
+
+    private func restoreThresholdIfNeeded() {
+        guard let thresholdBeforeSoundTest else {
+            return
+        }
+
+        monitor.threshold = thresholdBeforeSoundTest
+        self.thresholdBeforeSoundTest = nil
     }
 }
 
 private struct SensorScannerView: View {
     let availability: SensorAvailability
+    let isSoundTestActive: Bool
+    let hasCompletedSoundTest: Bool
     let rotation: Double
     let isPulsing: Bool
+
+    @State private var breathesOut = false
+    @State private var successScale = 1.0
 
     var body: some View {
         ZStack {
             Circle()
                 .fill(.ultraThinMaterial)
-                .frame(width: 236, height: 236)
+                .frame(width: innerCircleSize, height: innerCircleSize)
+                .shadow(color: glowTint.opacity(glowOpacity), radius: glowRadius)
                 .overlay {
                     Circle()
-                        .stroke(.white.opacity(0.14), lineWidth: 1)
+                        .stroke(glowTint.opacity(innerStrokeOpacity), lineWidth: 1.4)
                 }
+                .animation(.easeInOut(duration: 1.15).repeatForever(autoreverses: true), value: isSoundTestActive ? breathesOut : false)
 
             Circle()
                 .trim(from: 0.08, to: 0.72)
-                .stroke(scannerTint.gradient, style: StrokeStyle(lineWidth: 7, lineCap: .round))
-                .frame(width: 282, height: 282)
-                .rotationEffect(.degrees(availability == .checking ? rotation : 0))
-                .opacity(availability == .checking ? 1 : 0.52)
+                .stroke(arcTint.gradient, style: StrokeStyle(lineWidth: arcLineWidth, lineCap: .round))
+                .frame(width: arcSize, height: arcSize)
+                .shadow(color: arcTint.opacity(glowOpacity), radius: glowRadius)
+                .rotationEffect(.degrees(shouldRotateArc ? rotation : 0))
+                .opacity(arcOpacity)
+                .animation(.spring(response: 0.42, dampingFraction: 0.8), value: hasCompletedSoundTest)
+                .animation(.easeInOut(duration: 1.15).repeatForever(autoreverses: true), value: isSoundTestActive ? breathesOut : false)
 
             Circle()
-                .stroke(scannerTint.opacity(0.2), lineWidth: 22)
-                .frame(width: isPulsing ? 314 : 244, height: isPulsing ? 314 : 244)
-                .opacity(availability == .checking ? 0.8 : 0)
+                .stroke(pulseTint.opacity(0.2), lineWidth: 22)
+                .frame(width: pulseSize, height: pulseSize)
+                .opacity(pulseOpacity)
                 .animation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true), value: isPulsing)
 
-            Image(systemName: availability.systemImage)
+            Image(systemName: scannerSymbol)
                 .font(.system(size: 76, weight: .semibold))
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(scannerTint)
+                .scaleEffect(successScale)
+                .animation(.spring(response: 0.26, dampingFraction: 0.52), value: successScale)
         }
         .frame(width: 330, height: 330)
         .accessibilityLabel(availability.title)
+        .onAppear {
+            breathesOut = true
+        }
+        .onChange(of: hasCompletedSoundTest) { _, didComplete in
+            guard didComplete else {
+                successScale = 1
+                return
+            }
+
+            successScale = 1.18
+
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(260))
+                successScale = 1
+            }
+        }
     }
 
     private var scannerTint: Color {
-        switch availability {
-        case .checking:
-            .cyan
-        case .detected:
+        if hasCompletedSoundTest {
             .mint
+        } else if availability == .unsupported {
+            .red
+        } else {
+            .cyan
+        }
+    }
+
+    private var scannerSymbol: String {
+        if hasCompletedSoundTest {
+            "checkmark.seal.fill"
+        } else if availability == .unsupported {
+            availability.systemImage
+        } else {
+            "waveform.path.ecg"
+        }
+    }
+
+    private var glowTint: Color {
+        if hasCompletedSoundTest {
+            return .mint
+        }
+
+        return isSoundTestActive ? .cyan : .white
+    }
+
+    private var pulseTint: Color {
+        return isSoundTestActive ? .cyan : scannerTint
+    }
+
+    private var arcTint: Color {
+        hasCompletedSoundTest ? .mint : scannerTint
+    }
+
+    private var shouldRotateArc: Bool {
+        availability == .checking || hasCompletedSoundTest
+    }
+
+    private var innerCircleSize: CGFloat {
+        guard isSoundTestActive && !hasCompletedSoundTest else {
+            return 236
+        }
+
+        return breathesOut ? 250 : 226
+    }
+
+    private var arcSize: CGFloat {
+        guard isSoundTestActive && !hasCompletedSoundTest else {
+            return 282
+        }
+
+        return breathesOut ? 302 : 270
+    }
+
+    private var arcLineWidth: CGFloat {
+        isSoundTestActive || hasCompletedSoundTest ? 8 : 7
+    }
+
+    private var arcOpacity: Double {
+        if availability == .checking {
+            return 1
+        }
+
+        if isSoundTestActive || hasCompletedSoundTest {
+            return 0.96
+        }
+
+        return 0.52
+    }
+
+    private var pulseSize: CGFloat {
+        if isSoundTestActive && !hasCompletedSoundTest {
+            return breathesOut ? 326 : 260
+        }
+
+        return isPulsing ? 314 : 244
+    }
+
+    private var pulseOpacity: Double {
+        if isSoundTestActive && !hasCompletedSoundTest {
+            return 0.82
+        }
+
+        return availability == .checking ? 0.8 : 0
+    }
+
+    private var glowOpacity: Double {
+        if isSoundTestActive && !hasCompletedSoundTest {
+            return breathesOut ? 0.72 : 0.34
+        }
+
+        return hasCompletedSoundTest ? 0.54 : 0
+    }
+
+    private var glowRadius: CGFloat {
+        if isSoundTestActive && !hasCompletedSoundTest {
+            return breathesOut ? 28 : 14
+        }
+
+        return hasCompletedSoundTest ? 20 : 0
+    }
+
+    private var innerStrokeOpacity: Double {
+        if isSoundTestActive && !hasCompletedSoundTest {
+            return breathesOut ? 0.34 : 0.18
+        }
+
+        return hasCompletedSoundTest ? 0.28 : 0.14
+    }
+}
+
+private struct ProgressStepsView: View {
+    let sensorAvailability: SensorAvailability
+    let hasCompletedSoundTest: Bool
+    let hasCompletedCalibration: Bool
+    let canStart: Bool
+
+    var body: some View {
+        HStack(spacing: 12) {
+            OnboardingStepItem(
+                title: "Sensor",
+                value: sensorStatus,
+                symbol: sensorSymbol,
+                tint: sensorTint
+            )
+
+            OnboardingStepItem(
+                title: "Detection",
+                value: hasCompletedSoundTest ? "Verified" : "Pending",
+                symbol: hasCompletedSoundTest ? "checkmark.circle.fill" : "hand.tap.fill",
+                tint: hasCompletedSoundTest ? .mint : .white.opacity(0.56)
+            )
+
+            OnboardingStepItem(
+                title: "Calibration",
+                value: hasCompletedCalibration ? "Adjusted" : "Optional",
+                symbol: hasCompletedCalibration ? "checkmark.circle.fill" : "slider.horizontal.3",
+                tint: hasCompletedCalibration ? .mint : .yellow.opacity(0.82),
+                isBeta: true
+            )
+
+            OnboardingStepItem(
+                title: "Ready",
+                value: canStart ? "Continue" : "Waiting",
+                symbol: canStart ? "arrow.right.circle.fill" : "clock.fill",
+                tint: canStart ? .mint : .white.opacity(0.56)
+            )
+        }
+        .padding(12)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(.white.opacity(0.09), lineWidth: 1)
+        }
+    }
+
+    private var sensorStatus: String {
+        switch sensorAvailability {
+        case .checking:
+            "Checking"
+        case .detected:
+            "Available"
         case .unsupported:
-            .orange
+            "Unavailable"
+        }
+    }
+
+    private var sensorSymbol: String {
+        sensorAvailability.systemImage
+    }
+
+    private var sensorTint: Color {
+        switch sensorAvailability {
+        case .checking:
+            return .cyan
+        case .detected:
+            return .mint
+        case .unsupported:
+            return .red
         }
     }
 }
 
-private struct OnboardingStatusItem: View {
+private struct OnboardingStepItem: View {
     let title: String
     let value: String
     let symbol: String
     let tint: Color
+    var isBeta = false
 
     var body: some View {
         HStack(spacing: 10) {
@@ -254,9 +572,16 @@ private struct OnboardingStatusItem: View {
                 .frame(width: 24)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.48))
+                HStack(spacing: 6) {
+                    Text(title)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.48))
+
+                    if isBeta {
+                        BetaBadge()
+                    }
+                }
+
                 Text(value)
                     .font(.callout.weight(.semibold))
                     .lineLimit(1)
@@ -265,13 +590,22 @@ private struct OnboardingStatusItem: View {
 
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 14)
-        .frame(maxWidth: .infinity, minHeight: 70, alignment: .leading)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(.white.opacity(0.09), lineWidth: 1)
-        }
+        .frame(maxWidth: .infinity, minHeight: 54, alignment: .leading)
+    }
+}
+
+private struct BetaBadge: View {
+    var body: some View {
+        Text("BETA")
+            .font(.caption2.weight(.bold))
+            .foregroundStyle(.yellow.opacity(0.92))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(.yellow.opacity(0.14), in: Capsule())
+            .overlay {
+                Capsule()
+                    .stroke(.yellow.opacity(0.28), lineWidth: 1)
+            }
     }
 }
 

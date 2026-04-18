@@ -23,22 +23,31 @@ struct ContentView: View {
     @Bindable var monitor: SlapMonitor
     let resetOnboarding: () -> Void
 
-    @State private var selection: AppSection = .monitor
-    @State private var aboutClickCount = 0
-    @State private var lastAboutClickTime = Date.distantPast
+    @State private var selection: AppSection? = .monitor
 
     var body: some View {
-        HStack(spacing: 0) {
-            SidebarView(selection: $selection, monitor: monitor, selectSection: selectSection)
-
-            Divider()
-                .overlay(Color.white.opacity(0.08))
-
+        NavigationSplitView {
+            List(AppSection.allCases, selection: $selection) { section in
+                Label(section.rawValue, systemImage: section.symbol)
+                    .symbolRenderingMode(.hierarchical)
+                    .tag(section)
+            }
+            .navigationTitle("SlamDih")
+            .safeAreaInset(edge: .bottom) {
+                SidebarStatusView(monitor: monitor)
+                    .padding(16)
+                    .background(.bar)
+            }
+        } detail: {
             detailView
-                .id(selection)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .background(Color(red: 0.07, green: 0.08, blue: 0.09))
+        .navigationSplitViewStyle(.balanced)
+        .onChange(of: selection) { _, newSelection in
+            if newSelection == nil {
+                selection = .monitor
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -46,7 +55,7 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: monitor.isMonitoring ? "stop.fill" : "play.fill")
                 }
-                .disabled(!monitor.sensorAvailability.canMonitor && !monitor.isMonitoring)
+                .disabled(!monitor.canMonitor && !monitor.isMonitoring)
                 .help(monitor.isMonitoring ? "Stop monitoring" : "Start monitoring")
             }
         }
@@ -54,80 +63,14 @@ struct ContentView: View {
 
     @ViewBuilder
     private var detailView: some View {
-        switch selection {
+        switch selection ?? .monitor {
         case .monitor:
             MonitorView(monitor: monitor)
         case .calibration:
             CalibrationView(monitor: monitor)
         case .about:
-            AboutView()
+            AboutView(resetOnboarding: resetOnboarding)
         }
-    }
-
-    private func selectSection(_ section: AppSection) {
-        selection = section
-
-        guard section == .about else {
-            aboutClickCount = 0
-            return
-        }
-
-        let now = Date()
-        aboutClickCount = now.timeIntervalSince(lastAboutClickTime) < 1.2 ? aboutClickCount + 1 : 1
-        lastAboutClickTime = now
-
-        guard aboutClickCount >= 3 else {
-            return
-        }
-
-        aboutClickCount = 0
-        resetOnboarding()
-    }
-}
-
-private struct SidebarView: View {
-    @Binding var selection: AppSection
-    let monitor: SlapMonitor
-    let selectSection: (AppSection) -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Spacer()
-                .frame(height: 58)
-
-            ForEach(AppSection.allCases) { section in
-                Button {
-                    selectSection(section)
-                } label: {
-                    HStack(spacing: 12) {
-                        Image(systemName: section.symbol)
-                            .symbolRenderingMode(.hierarchical)
-                            .frame(width: 18)
-
-                        Text(section.rawValue)
-                            .font(.callout.weight(.semibold))
-
-                        Spacer()
-                    }
-                    .foregroundStyle(selection == section ? .white : .white.opacity(0.64))
-                    .padding(.horizontal, 14)
-                    .frame(height: 36)
-                    .background(selection == section ? Color.white.opacity(0.13) : Color.clear, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-                }
-                .buttonStyle(.plain)
-                .help(section.rawValue)
-            }
-
-            Spacer()
-
-            SidebarStatusView(monitor: monitor)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 18)
-        }
-        .padding(.horizontal, 16)
-        .frame(width: 208)
-        .frame(maxHeight: .infinity, alignment: .topLeading)
-        .background(Color(red: 0.05, green: 0.06, blue: 0.07))
     }
 }
 
@@ -137,7 +80,7 @@ private struct SidebarStatusView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 9) {
-                Image(systemName: monitor.sensorAvailability.systemImage)
+                Image(systemName: sensorSymbol)
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(sensorTint)
 
@@ -154,7 +97,7 @@ private struct SidebarStatusView: View {
 
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Slaps")
+                    Text("Events")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Text("\(monitor.slapCount)")
@@ -167,16 +110,21 @@ private struct SidebarStatusView: View {
                 StatusPill(isActive: monitor.isMonitoring, text: monitor.status)
             }
         }
+        .foregroundStyle(.primary)
     }
 
     private var sensorTint: Color {
         switch monitor.sensorAvailability {
         case .checking:
-            .cyan
+            return .cyan
         case .detected:
-            .mint
+            return .mint
         case .unsupported:
-            .orange
+            return .red
         }
+    }
+
+    private var sensorSymbol: String {
+        monitor.sensorAvailability.systemImage
     }
 }

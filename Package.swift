@@ -23,15 +23,18 @@ let package = Package(
                 .product(name: "Sparkle", package: "Sparkle")
             ],
             resources: [
-                .copy("Resources/SlapSoundEffect.mp3"),
-                .copy("Resources/FartSoundEffect.mp3"),
-                .copy("Resources/SexySoundEffect.mp3"),
-                .copy("Resources/YowchSoundEffect.mp3")
+                .copy("Resources/ImpactSoundEffect.mp3"),
+                .copy("Resources/AirPopSoundEffect.mp3"),
+                .copy("Resources/SpotlightSoundEffect.mp3"),
+                .copy("Resources/AlertSoundEffect.mp3"),
+                .copy("Resources/SnapSoundEffect.mp3")
             ],
             linkerSettings: [
                 .linkedFramework("AppKit"),
                 .linkedFramework("AVFoundation"),
-                .linkedFramework("IOKit")
+                .linkedFramework("Carbon"),
+                .linkedFramework("IOKit"),
+                .linkedFramework("ServiceManagement")
             ]
         ),
         .testTarget(

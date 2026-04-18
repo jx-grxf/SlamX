@@ -2,7 +2,7 @@
 
 # SlamDih
 
-**A tiny native macOS app that turns a MacBook slap into a sound effect.**
+**A native macOS utility that turns MacBook motion impacts into local sound feedback.**
 
 ![Swift](https://img.shields.io/badge/Swift-6.3-F05138?logo=swift&logoColor=white)
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-native%20macOS-0A84FF)
@@ -13,7 +13,7 @@
 
 </div>
 
-SlamDih is a small MacBook utility that listens to the built-in Apple SPU accelerometer, detects sharp impact spikes, increments a counter, and plays the bundled slap sound effect.
+SlamDih is a small MacBook utility that listens to the built-in Apple SPU accelerometer, detects sharp impact spikes, increments a counter, and plays bundled sound feedback.
 
 It is built as a private, local-first macOS tool. No sensor data leaves the machine.
 
@@ -50,9 +50,10 @@ It is built as a private, local-first macOS tool. No sensor data leaves the mach
 |---|---|
 | Native macOS UI | SwiftUI app with `NavigationSplitView`, toolbar actions, settings, and a menu bar extra |
 | Apple SPU sensor access | Reads the MacBook accelerometer through IOKit HID reports |
-| Live telemetry | Shows slap count, current impact, peak impact, sample rate, axis values, and raw HID bytes |
-| Adjustable detection | Sensitivity slider and calibration presets for soft, balanced, and hard impacts |
-| Local audio | Bundles slap, fart, sexy, and yowch sounds as SwiftPM resources and plays the selected one with `AVAudioPlayer` |
+| Live telemetry | Shows event count, current impact, peak impact, sample rate, axis values, and raw HID bytes |
+| Adjustable detection | Sensitivity slider, presets, and a guided calibration wizard |
+| Local audio | Bundles impact, air pop, spotlight, alert, and snap sounds as SwiftPM resources and plays the selected one with `AVAudioPlayer` |
+| Mac utility controls | Menu bar controls, launch-at-login, persisted counter and threshold, and a global mute shortcut |
 | Testable core | Parser and impact detector are separated into a small Swift library with unit tests |
 
 ---
@@ -71,8 +72,10 @@ SlamDih wraps that low-level stream in a tiny app with visible telemetry so cali
 2. Press Start or use the menu bar item.
 3. Watch live sensor values and impact intensity.
 4. Adjust the threshold until normal desk movement is ignored.
-5. Slap the MacBook lightly enough to be funny, not expensive.
+5. Apply a light tap to produce a clear motion spike.
 6. SlamDih plays the sound and increments the counter.
+
+If no accessible Apple SPU accelerometer is found during onboarding, SlamDih explains that the Mac is unsupported. SlamDih is sensor-only: either the accelerometer is available, or live detection is unavailable on that Mac.
 
 ---
 
@@ -128,10 +131,13 @@ open SlamDih.xcodeproj
 
 ## Usage
 
+- On first launch, complete the availability check and trigger the onboarding sound test with one light tap.
 - Start monitoring from the toolbar, menu bar extra, or `Command-R`.
-- Use the threshold slider to tune detection.
-- Choose `Slap`, `Fart`, `Sexy`, or `Yowch` in the sound picker.
+- Use the threshold slider or calibration wizard to tune detection.
+- Choose `Impact`, `Air Pop`, `Alert`, or `Snap` in the sound picker; enable bonus sounds in Settings to unlock `Spotlight`.
+- Add custom MP3 files from the Monitor sound control, then select or remove them from the expandable Custom MP3s menu.
 - Use the speaker button or `Command-T` to test the selected sound.
+- Use `Command-Shift-M` to mute or unmute sounds globally.
 - Use the reset button or `Command-0` to clear the counter.
 
 ---
@@ -175,9 +181,9 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project Sla
 
 ## Roadmap
 
-- Add a first-run calibration pass.
-- Persist threshold and counter history.
-- Add optional sound selection.
+- Hide raw HID telemetry behind an Advanced view for a cleaner public build.
+- Add signed and notarized release packaging.
+- Refine product copy and screenshots for a public launch.
 - Add a small signed release workflow after the private repo is created.
 
 ---

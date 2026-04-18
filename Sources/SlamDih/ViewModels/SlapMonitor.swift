@@ -51,10 +51,26 @@ final class SlapMonitor {
     static let thresholdRange = 0.05...1.0
     static let thresholdStep = 0.05
 
+    private enum PreferenceKey {
+        static let bonusSoundsEnabled = "bonusSoundsEnabled"
+        static let selectedSound = "selectedSound"
+        static let selectedCustomSound = "selectedCustomSound"
+        static let customAudioDisclaimerAccepted = "customAudioDisclaimerAccepted"
+    }
+
+    private enum Timing {
+        static let minimumAvailabilityCheckDuration: Duration = .seconds(3)
+    }
+
     var isMonitoring = false
+    var isMuted = false
     var status = "Idle"
-    var sensorName = "Apple SPU Accelerometer"
     var sensorAvailability: SensorAvailability = .checking
+    var isSensorUnsupportedTestMode = false {
+        didSet {
+            refreshSensorAvailability()
+        }
+    }
     var slapCount = 0
     var threshold = 0.75 {
         didSet {
@@ -68,24 +84,134 @@ final class SlapMonitor {
     )
     var currentImpact = 0.0
     var peakImpact = 0.0
+    var calibrationImpactPeak = 0.0
     var samplesPerSecond = 0
     var rawReport = ""
-    var lastEventDescription = "No slap detected yet"
-    var selectedSound: SlapSound = .slap
+    var lastEventDescription = "No impact detected yet"
+    var isBonusSoundsEnabled = false {
+        didSet {
+            userDefaults.set(isBonusSoundsEnabled, forKey: PreferenceKey.bonusSoundsEnabled)
+
+            if !isBonusSoundsEnabled && selectedSound.isBonus {
+                selectedSound = .whip
+            }
+        }
+    }
+    var selectedSound: SlapSound = .whip {
+        didSet {
+            if selectedSound.isBonus && !isBonusSoundsEnabled {
+                selectedSound = oldValue.isBonus ? .whip : oldValue
+                return
+            }
+
+            userDefaults.set(selectedSound.rawValue, forKey: PreferenceKey.selectedSound)
+        }
+    }
+    var selectedCustomSoundID: String? {
+        didSet {
+            if let selectedCustomSoundID {
+                userDefaults.set(selectedCustomSoundID, forKey: PreferenceKey.selectedCustomSound)
+            } else {
+                userDefaults.removeObject(forKey: PreferenceKey.selectedCustomSound)
+            }
+        }
+    }
+    var hasAcceptedCustomAudioDisclaimer = false {
+        didSet {
+            userDefaults.set(hasAcceptedCustomAudioDisclaimer, forKey: PreferenceKey.customAudioDisclaimerAccepted)
+        }
+    }
 
     @ObservationIgnored private let sensor = MacBookMotionSensor()
     @ObservationIgnored private let soundPlayer = SoundPlayer()
+    @ObservationIgnored private let userDefaults: UserDefaults
     @ObservationIgnored private var detector = SlapDetector()
     @ObservationIgnored private var sampleWindow: [TimeInterval] = []
     @ObservationIgnored private var previousSample: MotionSample?
     @ObservationIgnored private var monitoringActivity: NSObjectProtocol?
 
-    init() {
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+        isBonusSoundsEnabled = userDefaults.bool(forKey: PreferenceKey.bonusSoundsEnabled)
+        hasAcceptedCustomAudioDisclaimer = userDefaults.bool(forKey: PreferenceKey.customAudioDisclaimerAccepted)
+
+        if let storedSound = userDefaults.string(forKey: PreferenceKey.selectedSound),
+           let sound = SlapSound(rawValue: storedSound),
+           isBonusSoundsEnabled || !sound.isBonus {
+            selectedSound = sound
+        }
+
+        if let storedCustomSoundID = userDefaults.string(forKey: PreferenceKey.selectedCustomSound),
+           soundPlayer.customSoundExists(id: storedCustomSoundID) {
+            selectedCustomSoundID = storedCustomSoundID
+        }
+
         refreshSensorAvailability()
     }
 
+    var availableSounds: [SlapSound] {
+        SlapSound.availableSounds(includeBonus: isBonusSoundsEnabled)
+    }
+
     var soundStatus: String {
-        soundPlayer.isReady(for: selectedSound) ? "\(selectedSound.title) ready" : "\(selectedSound.title) missing"
+        if isMuted {
+            return "Muted"
+        }
+
+        let title = selectedSoundTitle
+        return soundPlayer.isReady(for: selectedSound, customSoundID: selectedCustomSoundID) ? "\(title) ready" : "\(title) missing"
+    }
+
+    var selectedSoundTitle: String {
+        guard let selectedCustomSoundID else {
+            return selectedSound.title
+        }
+
+        return customSounds().first { $0.id == selectedCustomSoundID }?.title ?? selectedSound.title
+    }
+
+    var selectedSoundSymbol: String {
+        if isMuted {
+            return "speaker.slash.fill"
+        }
+
+        return selectedCustomSoundID == nil ? selectedSound.symbol : "music.note"
+    }
+
+    var sensorName: String {
+        "Apple SPU Accelerometer"
+    }
+
+    var canMonitor: Bool {
+        sensorAvailability.canMonitor
+    }
+
+    var monitoringActionTitle: String {
+        isMonitoring ? "Stop Monitoring" : "Start Monitoring"
+    }
+
+    var monitoringActionSymbol: String {
+        isMonitoring ? "stop.fill" : "play.fill"
+    }
+
+    var muteActionTitle: String {
+        isMuted ? "Unmute Sounds" : "Mute Sounds"
+    }
+
+    var muteActionSymbol: String {
+        isMuted ? "speaker.wave.2.fill" : "speaker.slash.fill"
+    }
+
+    var sensorStatusTitle: String {
+        sensorAvailability.compactTitle
+    }
+
+    var unsupportedSensorExplanation: String {
+        if isSensorUnsupportedTestMode {
+            return "Test mode is simulating a Mac without the Apple SPU accelerometer. This is only for testing the unsupported-device flow."
+        }
+
+        return "SlamDih could not find an accessible Apple SPU accelerometer. This Mac does not expose the motion sensor SlamDih needs."
     }
 
     var xAxis: Double {
@@ -104,31 +230,132 @@ final class SlapMonitor {
         currentSample.acceleration.magnitude
     }
 
-    var monitoringActionTitle: String {
-        isMonitoring ? "Stop Monitoring" : "Start Monitoring"
-    }
-
-    var monitoringActionSymbol: String {
-        isMonitoring ? "stop.fill" : "play.fill"
-    }
-
-    var sensorStatusTitle: String {
-        sensorAvailability.compactTitle
+    func applyPersistedValues(threshold persistedThreshold: Double, slapCount persistedSlapCount: Int) {
+        threshold = Self.clampedThreshold(persistedThreshold)
+        slapCount = max(0, persistedSlapCount)
     }
 
     func toggleMonitoring() {
-        isMonitoring ? stopMonitoring() : startMonitoring()
+        if isMonitoring {
+            stopMonitoring()
+        } else {
+            Task {
+                await startMonitoring()
+            }
+        }
     }
 
-    func startMonitoring() {
+    func startMonitoring() async {
         guard !isMonitoring else {
             status = "Listening"
             return
         }
 
+        startAccelerometerMonitoring()
+    }
+
+    func checkSensorAvailability() async {
+        sensorAvailability = .checking
+        status = "Checking sensor"
+
+        do {
+            try await Task.sleep(for: Timing.minimumAvailabilityCheckDuration)
+        } catch {
+            return
+        }
+
+        refreshSensorAvailability()
+    }
+
+    func refreshSensorAvailability() {
+        guard !isMonitoring else {
+            sensorAvailability = .detected
+            return
+        }
+
+        sensorAvailability = isSensorUnsupportedTestMode || !MacBookMotionSensor.isAccelerometerAvailable() ? .unsupported : .detected
+        status = sensorAvailability.canMonitor ? "Ready" : "Unsupported Mac"
+    }
+
+    func stopMonitoring() {
+        sensor.stop()
+        endMonitoringActivity()
+        status = "Stopped"
+        isMonitoring = false
+    }
+
+    func resetCounter() {
+        slapCount = 0
+        peakImpact = 0
+        currentImpact = 0
+        calibrationImpactPeak = 0
+        lastEventDescription = "Counter reset"
+        detector.reset()
+    }
+
+    func resetCalibrationImpactPeak() {
+        calibrationImpactPeak = 0
+    }
+
+    func playTestSound() {
+        guard playSelectedSound() else {
+            lastEventDescription = "\(selectedSoundTitle) sound test muted"
+            return
+        }
+
+        lastEventDescription = "\(selectedSoundTitle) sound test played"
+    }
+
+    func toggleMute() {
+        isMuted.toggle()
+        status = isMuted ? "Muted" : (isMonitoring ? "Listening" : "Ready")
+        lastEventDescription = isMuted ? "Sounds muted" : "Sounds unmuted"
+    }
+
+    func selectStandardSound(_ sound: SlapSound) {
+        selectedCustomSoundID = nil
+        selectedSound = sound
+    }
+
+    func selectCustomSound(id: String) {
+        guard soundPlayer.customSoundExists(id: id) else {
+            return
+        }
+
+        selectedCustomSoundID = id
+    }
+
+    func customSounds() -> [CustomSlapSound] {
+        soundPlayer.customSounds()
+    }
+
+    func importCustomSound(from url: URL) throws {
+        let importedSound = try soundPlayer.importCustomSound(from: url)
+        selectedCustomSoundID = importedSound.id
+    }
+
+    func removeCustomSound(id: String) throws {
+        try soundPlayer.removeCustomSound(id: id)
+
+        if selectedCustomSoundID == id {
+            selectedCustomSoundID = nil
+        }
+    }
+
+    static func clampedThreshold(_ value: Double) -> Double {
+        min(max(value, thresholdRange.lowerBound), thresholdRange.upperBound)
+    }
+
+    static func steppedThreshold(_ value: Double) -> Double {
+        let clampedValue = clampedThreshold(value)
+        let steps = (clampedValue / thresholdStep).rounded()
+        return clampedThreshold(steps * thresholdStep)
+    }
+
+    private func startAccelerometerMonitoring() {
         refreshSensorAvailability()
 
-        guard sensorAvailability.canMonitor else {
+        guard canMonitor else {
             status = "Unsupported Mac"
             return
         }
@@ -152,44 +379,6 @@ final class SlapMonitor {
         }
     }
 
-    func checkSensorAvailability() async {
-        sensorAvailability = .checking
-        status = "Checking sensor"
-
-        try? await Task.sleep(for: .milliseconds(900))
-        refreshSensorAvailability()
-    }
-
-    func refreshSensorAvailability() {
-        guard !isMonitoring else {
-            sensorAvailability = .detected
-            return
-        }
-
-        sensorAvailability = MacBookMotionSensor.isAccelerometerAvailable() ? .detected : .unsupported
-        status = sensorAvailability.canMonitor ? "Ready" : "Unsupported Mac"
-    }
-
-    func stopMonitoring() {
-        sensor.stop()
-        endMonitoringActivity()
-        status = "Stopped"
-        isMonitoring = false
-    }
-
-    func resetCounter() {
-        slapCount = 0
-        peakImpact = 0
-        currentImpact = 0
-        lastEventDescription = "Counter reset"
-        detector.reset()
-    }
-
-    func playTestSound() {
-        soundPlayer.play(selectedSound)
-        lastEventDescription = "\(selectedSound.title) sound test played"
-    }
-
     private func handle(_ sample: MotionSample) {
         currentSample = sample
         rawReport = MotionReportParser.rawDescription(for: sample.rawReport)
@@ -197,15 +386,22 @@ final class SlapMonitor {
         if let previousSample {
             currentImpact = sample.acceleration.distance(to: previousSample.acceleration)
             peakImpact = max(peakImpact, currentImpact)
+            calibrationImpactPeak = max(calibrationImpactPeak, currentImpact)
         }
         previousSample = sample
 
         updateSampleRate(now: sample.timestamp)
 
-        if let event = detector.process(sample) {
-            slapCount += 1
-            soundPlayer.play(selectedSound)
-            lastEventDescription = "\(selectedSound.title) \(slapCount) at \(event.impact.formatted(.number.precision(.fractionLength(2)))) g"
+        guard let event = detector.process(sample) else {
+            return
+        }
+
+        slapCount += 1
+
+        if playSelectedSound() {
+            lastEventDescription = "\(selectedSoundTitle) \(slapCount) at \(event.impact.formatted(.number.precision(.fractionLength(2)))) g"
+        } else {
+            lastEventDescription = "\(selectedSoundTitle) \(slapCount) muted at \(event.impact.formatted(.number.precision(.fractionLength(2)))) g"
         }
     }
 
@@ -215,6 +411,15 @@ final class SlapMonitor {
         samplesPerSecond = sampleWindow.count
     }
 
+    private func playSelectedSound() -> Bool {
+        guard !isMuted else {
+            return false
+        }
+
+        soundPlayer.play(selectedSound, customSoundID: selectedCustomSoundID)
+        return true
+    }
+
     private func beginMonitoringActivity() {
         guard monitoringActivity == nil else {
             return
@@ -222,7 +427,7 @@ final class SlapMonitor {
 
         monitoringActivity = ProcessInfo.processInfo.beginActivity(
             options: [.userInitiatedAllowingIdleSystemSleep, .latencyCritical],
-            reason: "Keep SlamDih listening to MacBook motion reports."
+            reason: "Keep SlamDih listening for local impact events."
         )
     }
 

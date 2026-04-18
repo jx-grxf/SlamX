@@ -19,18 +19,23 @@
 		B1000000000000000000000A /* Sources/SlamDihCore/MotionReportParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000A /* Sources/SlamDihCore/MotionReportParser.swift */; };
 		B1000000000000000000000B /* Sources/SlamDihCore/MotionSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000B /* Sources/SlamDihCore/MotionSample.swift */; };
 		B1000000000000000000000C /* Sources/SlamDihCore/SlapDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000C /* Sources/SlamDihCore/SlapDetector.swift */; };
-		B1000000000000000000000D /* Sources/SlamDih/Resources/SlapSoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000D /* Sources/SlamDih/Resources/SlapSoundEffect.mp3 */; };
-		B1000000000000000000000E /* Sources/SlamDih/Resources/FartSoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000E /* Sources/SlamDih/Resources/FartSoundEffect.mp3 */; };
+		B1000000000000000000000D /* Sources/SlamDih/Resources/ImpactSoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000D /* Sources/SlamDih/Resources/ImpactSoundEffect.mp3 */; };
+		B1000000000000000000000E /* Sources/SlamDih/Resources/AirPopSoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000E /* Sources/SlamDih/Resources/AirPopSoundEffect.mp3 */; };
 		B1000000000000000000000F /* Resources/Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000F /* Resources/Assets.xcassets */; };
 		B10000000000000000000010 /* libSlamDihCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* libSlamDihCore.a */; };
 		B10000000000000000000011 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F10000000000000000000013 /* AppKit.framework */; };
 		B10000000000000000000012 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F10000000000000000000014 /* AVFoundation.framework */; };
 		B10000000000000000000013 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F10000000000000000000015 /* IOKit.framework */; };
 		B10000000000000000000014 /* Sources/SlamDih/Views/OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000016 /* Sources/SlamDih/Views/OnboardingView.swift */; };
-		B10000000000000000000015 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000017 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 */; };
+		B10000000000000000000015 /* Sources/SlamDih/Resources/SpotlightSoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000017 /* Sources/SlamDih/Resources/SpotlightSoundEffect.mp3 */; };
 		B10000000000000000000016 /* Sources/SlamDih/Services/UpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000018 /* Sources/SlamDih/Services/UpdateController.swift */; };
 		B10000000000000000000017 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = A30000000000000000000002 /* Sparkle */; };
-		B10000000000000000000018 /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001A /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 */; };
+		B10000000000000000000018 /* Sources/SlamDih/Resources/AlertSoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001A /* Sources/SlamDih/Resources/AlertSoundEffect.mp3 */; };
+		B10000000000000000000019 /* Sources/SlamDih/Resources/SnapSoundEffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001B /* Sources/SlamDih/Resources/SnapSoundEffect.mp3 */; };
+		B1000000000000000000001B /* Sources/SlamDih/Services/GlobalHotKeyController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001D /* Sources/SlamDih/Services/GlobalHotKeyController.swift */; };
+		B1000000000000000000001C /* Sources/SlamDih/Services/LaunchAtLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001E /* Sources/SlamDih/Services/LaunchAtLoginController.swift */; };
+		B1000000000000000000001D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001F /* Carbon.framework */; };
+		B1000000000000000000001E /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F10000000000000000000020 /* ServiceManagement.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,8 +63,8 @@
 		F1000000000000000000000A /* Sources/SlamDihCore/MotionReportParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDihCore/MotionReportParser.swift; sourceTree = "<group>"; };
 		F1000000000000000000000B /* Sources/SlamDihCore/MotionSample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDihCore/MotionSample.swift; sourceTree = "<group>"; };
 		F1000000000000000000000C /* Sources/SlamDihCore/SlapDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDihCore/SlapDetector.swift; sourceTree = "<group>"; };
-		F1000000000000000000000D /* Sources/SlamDih/Resources/SlapSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/SlapSoundEffect.mp3; sourceTree = "<group>"; };
-		F1000000000000000000000E /* Sources/SlamDih/Resources/FartSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/FartSoundEffect.mp3; sourceTree = "<group>"; };
+		F1000000000000000000000D /* Sources/SlamDih/Resources/ImpactSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/ImpactSoundEffect.mp3; sourceTree = "<group>"; };
+		F1000000000000000000000E /* Sources/SlamDih/Resources/AirPopSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/AirPopSoundEffect.mp3; sourceTree = "<group>"; };
 		F1000000000000000000000F /* Resources/Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
 		F10000000000000000000010 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		F10000000000000000000011 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -68,10 +73,15 @@
 		F10000000000000000000014 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		F10000000000000000000015 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		F10000000000000000000016 /* Sources/SlamDih/Views/OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Views/OnboardingView.swift; sourceTree = "<group>"; };
-		F10000000000000000000017 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/SexySoundEffect.mp3; sourceTree = "<group>"; };
+		F10000000000000000000017 /* Sources/SlamDih/Resources/SpotlightSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/SpotlightSoundEffect.mp3; sourceTree = "<group>"; };
 		F10000000000000000000018 /* Sources/SlamDih/Services/UpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Services/UpdateController.swift; sourceTree = "<group>"; };
 		F10000000000000000000019 /* Resources/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Resources/Info.plist; sourceTree = "<group>"; };
-		F1000000000000000000001A /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/YowchSoundEffect.mp3; sourceTree = "<group>"; };
+		F1000000000000000000001A /* Sources/SlamDih/Resources/AlertSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/AlertSoundEffect.mp3; sourceTree = "<group>"; };
+		F1000000000000000000001B /* Sources/SlamDih/Resources/SnapSoundEffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Sources/SlamDih/Resources/SnapSoundEffect.mp3; sourceTree = "<group>"; };
+		F1000000000000000000001D /* Sources/SlamDih/Services/GlobalHotKeyController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Services/GlobalHotKeyController.swift; sourceTree = "<group>"; };
+		F1000000000000000000001E /* Sources/SlamDih/Services/LaunchAtLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamDih/Services/LaunchAtLoginController.swift; sourceTree = "<group>"; };
+		F1000000000000000000001F /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
+		F10000000000000000000020 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,7 +92,9 @@
 				B10000000000000000000010 /* libSlamDihCore.a in Frameworks */,
 				B10000000000000000000011 /* AppKit.framework in Frameworks */,
 				B10000000000000000000012 /* AVFoundation.framework in Frameworks */,
+				B1000000000000000000001D /* Carbon.framework in Frameworks */,
 				B10000000000000000000013 /* IOKit.framework in Frameworks */,
+				B1000000000000000000001E /* ServiceManagement.framework in Frameworks */,
 				B10000000000000000000017 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -136,6 +148,8 @@
 			isa = PBXGroup;
 			children = (
 				F10000000000000000000002 /* Sources/SlamDih/Services/MacBookMotionSensor.swift */,
+				F1000000000000000000001D /* Sources/SlamDih/Services/GlobalHotKeyController.swift */,
+				F1000000000000000000001E /* Sources/SlamDih/Services/LaunchAtLoginController.swift */,
 				F10000000000000000000003 /* Sources/SlamDih/Services/SoundPlayer.swift */,
 				F10000000000000000000018 /* Sources/SlamDih/Services/UpdateController.swift */,
 			);
@@ -177,10 +191,11 @@
 			isa = PBXGroup;
 			children = (
 				F1000000000000000000000F /* Resources/Assets.xcassets */,
-				F1000000000000000000000D /* Sources/SlamDih/Resources/SlapSoundEffect.mp3 */,
-				F1000000000000000000000E /* Sources/SlamDih/Resources/FartSoundEffect.mp3 */,
-				F10000000000000000000017 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 */,
-				F1000000000000000000001A /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 */,
+				F1000000000000000000000D /* Sources/SlamDih/Resources/ImpactSoundEffect.mp3 */,
+				F1000000000000000000000E /* Sources/SlamDih/Resources/AirPopSoundEffect.mp3 */,
+				F10000000000000000000017 /* Sources/SlamDih/Resources/SpotlightSoundEffect.mp3 */,
+				F1000000000000000000001A /* Sources/SlamDih/Resources/AlertSoundEffect.mp3 */,
+				F1000000000000000000001B /* Sources/SlamDih/Resources/SnapSoundEffect.mp3 */,
 				F10000000000000000000019 /* Resources/Info.plist */,
 			);
 			name = Resources;
@@ -191,7 +206,9 @@
 			children = (
 				F10000000000000000000013 /* AppKit.framework */,
 				F10000000000000000000014 /* AVFoundation.framework */,
+				F1000000000000000000001F /* Carbon.framework */,
 				F10000000000000000000015 /* IOKit.framework */,
+				F10000000000000000000020 /* ServiceManagement.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -281,10 +298,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				B1000000000000000000000F /* Resources/Assets.xcassets in Resources */,
-				B1000000000000000000000D /* Sources/SlamDih/Resources/SlapSoundEffect.mp3 in Resources */,
-				B1000000000000000000000E /* Sources/SlamDih/Resources/FartSoundEffect.mp3 in Resources */,
-				B10000000000000000000015 /* Sources/SlamDih/Resources/SexySoundEffect.mp3 in Resources */,
-				B10000000000000000000018 /* Sources/SlamDih/Resources/YowchSoundEffect.mp3 in Resources */,
+				B1000000000000000000000D /* Sources/SlamDih/Resources/ImpactSoundEffect.mp3 in Resources */,
+				B1000000000000000000000E /* Sources/SlamDih/Resources/AirPopSoundEffect.mp3 in Resources */,
+				B10000000000000000000015 /* Sources/SlamDih/Resources/SpotlightSoundEffect.mp3 in Resources */,
+				B10000000000000000000018 /* Sources/SlamDih/Resources/AlertSoundEffect.mp3 in Resources */,
+				B10000000000000000000019 /* Sources/SlamDih/Resources/SnapSoundEffect.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,6 +324,8 @@
 				B10000000000000000000014 /* Sources/SlamDih/Views/OnboardingView.swift in Sources */,
 				B10000000000000000000009 /* Sources/SlamDih/Views/SettingsView.swift in Sources */,
 				B10000000000000000000016 /* Sources/SlamDih/Services/UpdateController.swift in Sources */,
+				B1000000000000000000001B /* Sources/SlamDih/Services/GlobalHotKeyController.swift in Sources */,
+				B1000000000000000000001C /* Sources/SlamDih/Services/LaunchAtLoginController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

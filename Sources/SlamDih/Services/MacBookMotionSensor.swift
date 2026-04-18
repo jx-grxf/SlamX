@@ -81,7 +81,17 @@ final class MacBookMotionSensor {
     }
 
     static func isAccelerometerAvailable() -> Bool {
-        createAccelerometerDevice() != nil
+        guard let device = createAccelerometerDevice() else {
+            return false
+        }
+
+        let openResult = IOHIDDeviceOpen(device, IOOptionBits(kIOHIDOptionsTypeNone))
+        guard openResult == kIOReturnSuccess else {
+            return false
+        }
+
+        IOHIDDeviceClose(device, IOOptionBits(kIOHIDOptionsTypeNone))
+        return true
     }
 
     private func handleReport(_ report: [UInt8]) {

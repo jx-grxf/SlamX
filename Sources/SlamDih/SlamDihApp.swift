@@ -7,35 +7,48 @@ struct SlamDihApp: App {
     @Environment(\.openWindow) private var openWindow
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var monitor = SlapMonitor()
+    @State private var hotKeyController = GlobalHotKeyController()
     @State private var updateController = UpdateController()
 
     var body: some Scene {
         WindowGroup("SlamDih", id: "main") {
-            if hasCompletedOnboarding {
-                ContentView(monitor: monitor) {
-                    resetOnboarding()
+            Group {
+                if hasCompletedOnboarding {
+                    ContentView(monitor: monitor) {
+                        resetOnboarding()
+                    }
+                    .frame(minWidth: 920, minHeight: 620)
+                } else {
+                    OnboardingView(monitor: monitor) {
+                        finishOnboarding()
+                    }
+                    .frame(minWidth: 920, minHeight: 620)
                 }
-                .frame(minWidth: 920, minHeight: 620)
-            } else {
-                OnboardingView(monitor: monitor) {
-                    finishOnboarding()
+            }
+            .modifier(MonitorPersistenceModifier(monitor: monitor))
+            .onAppear {
+                hotKeyController.register {
+                    monitor.toggleMute()
                 }
-                .frame(minWidth: 920, minHeight: 620)
             }
         }
-        .windowStyle(.hiddenTitleBar)
         .commands {
             CommandMenu("SlamDih") {
                 Button(monitor.monitoringActionTitle) {
                     monitor.toggleMonitoring()
                 }
                 .keyboardShortcut("r", modifiers: [.command])
-                .disabled(!monitor.sensorAvailability.canMonitor && !monitor.isMonitoring)
+                .disabled(!monitor.canMonitor && !monitor.isMonitoring)
 
-                Button("Test Slap Sound") {
+                Button("Test Sound") {
                     monitor.playTestSound()
                 }
                 .keyboardShortcut("t", modifiers: [.command])
+
+                Button(monitor.muteActionTitle) {
+                    monitor.toggleMute()
+                }
+                .keyboardShortcut("m", modifiers: [.command, .shift])
 
                 Button("Check for Updates...") {
                     updateController.checkForUpdates()
@@ -48,6 +61,10 @@ struct SlamDihApp: App {
                     monitor.resetCounter()
                 }
                 .keyboardShortcut("0", modifiers: [.command])
+
+                Button("Reset Onboarding") {
+                    resetOnboarding()
+                }
             }
         }
 
@@ -87,6 +104,49 @@ struct SlamDihApp: App {
     }
 }
 
+private struct MonitorPersistenceModifier: ViewModifier {
+    @Bindable var monitor: SlapMonitor
+
+    @AppStorage("threshold") private var persistedThreshold = 0.75
+    @AppStorage("slapCount") private var persistedSlapCount = 0
+    @State private var didLoadPersistedValues = false
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                guard !didLoadPersistedValues else {
+                    return
+                }
+
+                didLoadPersistedValues = true
+                monitor.applyPersistedValues(
+                    threshold: persistedThreshold,
+                    slapCount: persistedSlapCount
+                )
+            }
+            .onChange(of: monitor.threshold) { _, newValue in
+                persistedThreshold = SlapMonitor.steppedThreshold(newValue)
+            }
+            .onChange(of: monitor.slapCount) { _, newValue in
+                persistedSlapCount = max(0, newValue)
+            }
+            .onChange(of: persistedThreshold) { _, newValue in
+                let steppedValue = SlapMonitor.steppedThreshold(newValue)
+
+                if monitor.threshold != steppedValue {
+                    monitor.threshold = steppedValue
+                }
+            }
+            .onChange(of: persistedSlapCount) { _, newValue in
+                let safeValue = max(0, newValue)
+
+                if monitor.slapCount != safeValue {
+                    monitor.slapCount = safeValue
+                }
+            }
+    }
+}
+
 private final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         false
@@ -111,12 +171,18 @@ private struct MenuBarPanel: View {
         } label: {
             Label(monitor.monitoringActionTitle, systemImage: monitor.monitoringActionSymbol)
         }
-        .disabled(!monitor.sensorAvailability.canMonitor && !monitor.isMonitoring)
+        .disabled(!monitor.canMonitor && !monitor.isMonitoring)
 
         Button {
             monitor.playTestSound()
         } label: {
-            Label("Test Slap Sound", systemImage: "speaker.wave.2.fill")
+            Label("Test Sound", systemImage: "speaker.wave.2.fill")
+        }
+
+        Button {
+            monitor.toggleMute()
+        } label: {
+            Label(monitor.muteActionTitle, systemImage: monitor.muteActionSymbol)
         }
 
         Button {
@@ -127,12 +193,16 @@ private struct MenuBarPanel: View {
 
         Divider()
 
-        MenuBarStatButton(title: "Slaps", value: "\(monitor.slapCount)", symbol: "hand.raised.fill")
+        MenuBarStatButton(title: "Events", value: "\(monitor.slapCount)", symbol: "hand.raised.fill")
         MenuBarStatButton(title: "Peak", value: "\(monitor.peakImpact.formatted(.number.precision(.fractionLength(2)))) g", symbol: "chart.line.uptrend.xyaxis")
         MenuBarStatButton(title: "Impact", value: "\(monitor.currentImpact.formatted(.number.precision(.fractionLength(2)))) g", symbol: "bolt.fill")
         MenuBarStatButton(title: "Rate", value: "\(monitor.samplesPerSecond) Hz", symbol: "speedometer")
-        MenuBarStatButton(title: "Sensor", value: monitor.sensorStatusTitle, symbol: monitor.sensorAvailability.systemImage)
-        MenuBarStatButton(title: "Sound", value: monitor.selectedSound.title, symbol: monitor.selectedSound.symbol)
+        MenuBarStatButton(
+            title: "Sensor",
+            value: monitor.sensorStatusTitle,
+            symbol: monitor.sensorAvailability.systemImage
+        )
+        MenuBarStatButton(title: "Sound", value: monitor.selectedSoundTitle, symbol: monitor.selectedSoundSymbol)
     }
 }
 
