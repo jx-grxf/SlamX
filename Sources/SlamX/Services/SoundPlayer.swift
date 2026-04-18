@@ -13,15 +13,15 @@ enum SlapSound: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .slap:
-            "Impact"
+            "Slap"
         case .fart:
-            "Air Pop"
+            "Fart"
         case .sexy:
-            "Spotlight"
+            "Sexy"
         case .yowch:
-            "Alert"
+            "Ouchh"
         case .whip:
-            "Snap"
+            "Whip"
         }
     }
 
