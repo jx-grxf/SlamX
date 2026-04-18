@@ -14,7 +14,9 @@ struct SlamDihApp: App {
         WindowGroup("SlamDih", id: "main") {
             Group {
                 if hasCompletedOnboarding {
-                    ContentView(monitor: monitor)
+                    ContentView(monitor: monitor) {
+                        resetOnboarding()
+                    }
                     .frame(minWidth: 920, minHeight: 620)
                 } else {
                     OnboardingView(monitor: monitor) {

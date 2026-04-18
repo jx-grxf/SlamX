@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct AboutView: View {
+    let resetOnboarding: () -> Void
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             Color(red: 0.08, green: 0.09, blue: 0.10)
@@ -43,6 +45,10 @@ struct AboutView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .foregroundStyle(.white)
+        .contentShape(Rectangle())
+        .onTapGesture(count: 3) {
+            resetOnboarding()
+        }
     }
 }
 
