@@ -23,12 +23,22 @@ It is built as a local-first macOS project: motion samples stay on the Mac, no m
 
 ## Showcase
 
-<p align="center">
-  <img src="docs/showcase/slamx-showcase.svg" alt="SlamX showcase" width="860">
-</p>
+# Onboarding
 
 <p align="center">
   <img src="docs/showcase/monitor-slamx.jpeg" alt="SlamX monitor screen" width="860">
+</p>
+
+# Calibration
+
+<p align="center">
+  <img src="docs/showcase/monitor-calibration.jpeg" alt="SlamX monitor screen" width="860">
+</p>
+
+# Dashboard
+
+<p align="center">
+  <img src="docs/showcase/monitor-dash.jpeg" alt="SlamX monitor screen" width="860">
 </p>
 
 ---
@@ -36,21 +46,25 @@ It is built as a local-first macOS project: motion samples stay on the Mac, no m
 ## Contents
 
 - [SlamX](#slamx)
-- [Showcase](#showcase)
-- [Highlights](#highlights)
-- [Compatibility](#compatibility)
-- [Why This Exists](#why-this-exists)
-- [Current Workflow](#current-workflow)
-- [Tech Stack](#tech-stack)
-- [Requirements](#requirements)
-- [Quick Start](#quick-start)
-- [Usage](#usage)
-- [Privacy](#privacy)
-- [Release Status](#release-status)
-- [Development](#development)
-- [Research Notes](#research-notes)
-- [Roadmap](#roadmap)
-- [License](#license)
+  - [Showcase](#showcase)
+- [Onboarding](#onboarding)
+- [Calibration](#calibration)
+- [Dashboard](#dashboard)
+  - [Contents](#contents)
+  - [Highlights](#highlights)
+  - [Compatibility](#compatibility)
+  - [Why This Exists](#why-this-exists)
+  - [Current Workflow](#current-workflow)
+  - [Tech Stack](#tech-stack)
+  - [Requirements](#requirements)
+  - [Quick Start](#quick-start)
+  - [Usage](#usage)
+  - [Privacy](#privacy)
+  - [Release Status](#release-status)
+  - [Development](#development)
+  - [Research Notes](#research-notes)
+  - [Roadmap](#roadmap)
+  - [License](#license)
 
 ---
 

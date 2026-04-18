@@ -1,5 +1,7 @@
 # Project Agent Rules
 
+# Check the .agent-security-handover to always be up-to-date!
+
 ## Branch Hygiene
 - Create a fresh branch for every meaningful feature, fix, refactor, or release-prep slice.
 - Keep branches small. When a logical feature is finished, commit it before starting the next larger slice.
