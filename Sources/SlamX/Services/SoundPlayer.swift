@@ -85,11 +85,16 @@ enum SoundPlayerError: LocalizedError {
 
 final class SoundPlayer {
     private static let supportedAudioExtensions = Set(["mp3"])
+    private static let appSupportDirectoryName = "SlamX"
+    private static let legacyAppSupportDirectoryName = "SlamDih"
+    private static let customSoundsDirectoryName = "CustomSounds"
 
     private var bundledPlayers: [SlapSound: AVAudioPlayer] = [:]
     private var customPlayers: [URL: AVAudioPlayer] = [:]
 
     init() {
+        migrateLegacyCustomSoundsIfNeeded()
+
         for sound in SlapSound.allCases {
             guard let url = Self.resourceURL(for: sound) else {
                 continue
@@ -231,6 +236,10 @@ final class SoundPlayer {
     }
 
     private func customDirectory() -> URL? {
+        customDirectory(appSupportDirectoryName: Self.appSupportDirectoryName)
+    }
+
+    private func customDirectory(appSupportDirectoryName: String) -> URL? {
         guard let applicationSupportURL = FileManager.default.urls(
             for: .applicationSupportDirectory,
             in: .userDomainMask
@@ -239,8 +248,47 @@ final class SoundPlayer {
         }
 
         return applicationSupportURL
-            .appendingPathComponent("SlamX", isDirectory: true)
-            .appendingPathComponent("CustomSounds", isDirectory: true)
+            .appendingPathComponent(appSupportDirectoryName, isDirectory: true)
+            .appendingPathComponent(Self.customSoundsDirectoryName, isDirectory: true)
+    }
+
+    private func migrateLegacyCustomSoundsIfNeeded() {
+        guard let legacyDirectory = customDirectory(appSupportDirectoryName: Self.legacyAppSupportDirectoryName),
+              let currentDirectory = customDirectory(),
+              FileManager.default.fileExists(atPath: legacyDirectory.path) else {
+            return
+        }
+
+        let legacySounds = (try? FileManager.default.contentsOfDirectory(
+            at: legacyDirectory,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )) ?? []
+
+        let supportedLegacySounds = legacySounds.filter {
+            Self.supportedAudioExtensions.contains($0.pathExtension.lowercased())
+        }
+
+        guard !supportedLegacySounds.isEmpty else {
+            return
+        }
+
+        do {
+            try FileManager.default.createDirectory(at: currentDirectory, withIntermediateDirectories: true)
+
+            for legacySound in supportedLegacySounds {
+                let destinationURL = currentDirectory.appendingPathComponent(legacySound.lastPathComponent)
+
+                guard !FileManager.default.fileExists(atPath: destinationURL.path) else {
+                    continue
+                }
+
+                try FileManager.default.copyItem(at: legacySound, to: destinationURL)
+            }
+        } catch {
+            NSLog("SlamX could not migrate legacy custom sounds: \(error.localizedDescription)")
+            return
+        }
     }
 
     private func uniqueDestinationURL(for sourceURL: URL, in directory: URL) -> URL {

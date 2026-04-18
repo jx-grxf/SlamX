@@ -5,10 +5,21 @@ import SwiftUI
 struct SlamXApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @Environment(\.openWindow) private var openWindow
-    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @State private var monitor = SlapMonitor()
+    @State private var hasCompletedOnboarding: Bool
+    @State private var monitor: SlapMonitor
     @State private var hotKeyController = GlobalHotKeyController()
     @State private var updateController = UpdateController()
+
+    private let preferences: SlamXPreferences
+
+    init() {
+        let preferences = SlamXPreferences.standard
+        preferences.migrateLegacyDefaults()
+
+        self.preferences = preferences
+        _hasCompletedOnboarding = State(initialValue: preferences.hasCompletedOnboarding)
+        _monitor = State(initialValue: SlapMonitor(userDefaults: preferences.userDefaults))
+    }
 
     var body: some Scene {
         WindowGroup("SlamX", id: "main") {
@@ -25,7 +36,7 @@ struct SlamXApp: App {
                     .frame(minWidth: 920, minHeight: 620)
                 }
             }
-            .modifier(MonitorPersistenceModifier(monitor: monitor))
+            .modifier(MonitorPersistenceModifier(monitor: monitor, preferences: preferences))
             .onAppear {
                 hotKeyController.register {
                     monitor.toggleMute()
@@ -98,11 +109,13 @@ struct SlamXApp: App {
 
     private func finishOnboarding() {
         hasCompletedOnboarding = true
+        preferences.setHasCompletedOnboarding(true)
         NSApp.activate(ignoringOtherApps: true)
     }
 
     private func resetOnboarding() {
         hasCompletedOnboarding = false
+        preferences.setHasCompletedOnboarding(false)
         monitor.stopMonitoring()
         monitor.resetCounter()
         NSApp.activate(ignoringOtherApps: true)
@@ -111,9 +124,8 @@ struct SlamXApp: App {
 
 private struct MonitorPersistenceModifier: ViewModifier {
     @Bindable var monitor: SlapMonitor
+    let preferences: SlamXPreferences
 
-    @AppStorage("threshold") private var persistedThreshold = 0.75
-    @AppStorage("slapCount") private var persistedSlapCount = 0
     @State private var didLoadPersistedValues = false
 
     func body(content: Content) -> some View {
@@ -125,30 +137,111 @@ private struct MonitorPersistenceModifier: ViewModifier {
 
                 didLoadPersistedValues = true
                 monitor.applyPersistedValues(
-                    threshold: persistedThreshold,
-                    slapCount: persistedSlapCount
+                    threshold: preferences.threshold,
+                    slapCount: preferences.slapCount
                 )
             }
             .onChange(of: monitor.threshold) { _, newValue in
-                persistedThreshold = SlapMonitor.steppedThreshold(newValue)
+                preferences.setThreshold(newValue)
             }
             .onChange(of: monitor.slapCount) { _, newValue in
-                persistedSlapCount = max(0, newValue)
+                preferences.setSlapCount(newValue)
             }
-            .onChange(of: persistedThreshold) { _, newValue in
-                let steppedValue = SlapMonitor.steppedThreshold(newValue)
+    }
+}
 
-                if monitor.threshold != steppedValue {
-                    monitor.threshold = steppedValue
-                }
-            }
-            .onChange(of: persistedSlapCount) { _, newValue in
-                let safeValue = max(0, newValue)
+@MainActor
+private final class SlamXPreferences {
+    static let standard = SlamXPreferences(
+        userDefaults: .standard,
+        legacyDefaults: UserDefaults(suiteName: Legacy.domain)
+    )
 
-                if monitor.slapCount != safeValue {
-                    monitor.slapCount = safeValue
-                }
+    let userDefaults: UserDefaults
+    private let legacyDefaults: UserDefaults?
+
+    private init(userDefaults: UserDefaults, legacyDefaults: UserDefaults?) {
+        self.userDefaults = userDefaults
+        self.legacyDefaults = legacyDefaults
+    }
+
+    var hasCompletedOnboarding: Bool {
+        userDefaults.bool(forKey: Key.hasCompletedOnboarding)
+    }
+
+    var threshold: Double {
+        guard let storedValue = userDefaults.doubleObject(forKey: Key.threshold) else {
+            return 0.75
+        }
+
+        return SlapMonitor.steppedThreshold(storedValue)
+    }
+
+    var slapCount: Int {
+        max(0, userDefaults.integer(forKey: Key.slapCount))
+    }
+
+    func setHasCompletedOnboarding(_ value: Bool) {
+        userDefaults.set(value, forKey: Key.hasCompletedOnboarding)
+    }
+
+    func setThreshold(_ value: Double) {
+        userDefaults.set(SlapMonitor.steppedThreshold(value), forKey: Key.threshold)
+    }
+
+    func setSlapCount(_ value: Int) {
+        userDefaults.set(max(0, value), forKey: Key.slapCount)
+    }
+
+    func migrateLegacyDefaults() {
+        guard let legacyDefaults else {
+            return
+        }
+
+        for key in Key.migratedKeys where userDefaults.object(forKey: key) == nil {
+            guard let legacyValue = legacyDefaults.object(forKey: key) else {
+                continue
             }
+
+            userDefaults.set(legacyValue, forKey: key)
+        }
+    }
+
+    private enum Key {
+        static let hasCompletedOnboarding = "hasCompletedOnboarding"
+        static let threshold = "threshold"
+        static let slapCount = "slapCount"
+        static let bonusSoundsEnabled = "bonusSoundsEnabled"
+        static let selectedSound = "selectedSound"
+        static let selectedCustomSound = "selectedCustomSound"
+        static let customAudioDisclaimerAccepted = "customAudioDisclaimerAccepted"
+
+        static let migratedKeys = [
+            hasCompletedOnboarding,
+            threshold,
+            slapCount,
+            bonusSoundsEnabled,
+            selectedSound,
+            selectedCustomSound,
+            customAudioDisclaimerAccepted
+        ]
+    }
+
+    private enum Legacy {
+        static let domain = "com.johannesgrof.slamdih"
+    }
+}
+
+private extension UserDefaults {
+    func doubleObject(forKey key: String) -> Double? {
+        switch object(forKey: key) {
+        case let value as Double:
+            value
+        case let value as NSNumber:
+            value.doubleValue
+        default:
+            nil
+        }
     }
 }
 
