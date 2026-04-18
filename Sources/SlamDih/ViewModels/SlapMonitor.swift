@@ -84,6 +84,7 @@ final class SlapMonitor {
     )
     var currentImpact = 0.0
     var peakImpact = 0.0
+    var calibrationImpactPeak = 0.0
     var samplesPerSecond = 0
     var rawReport = ""
     var lastEventDescription = "No impact detected yet"
@@ -287,8 +288,13 @@ final class SlapMonitor {
         slapCount = 0
         peakImpact = 0
         currentImpact = 0
+        calibrationImpactPeak = 0
         lastEventDescription = "Counter reset"
         detector.reset()
+    }
+
+    func resetCalibrationImpactPeak() {
+        calibrationImpactPeak = 0
     }
 
     func playTestSound() {
@@ -380,6 +386,7 @@ final class SlapMonitor {
         if let previousSample {
             currentImpact = sample.acceleration.distance(to: previousSample.acceleration)
             peakImpact = max(peakImpact, currentImpact)
+            calibrationImpactPeak = max(calibrationImpactPeak, currentImpact)
         }
         previousSample = sample
 

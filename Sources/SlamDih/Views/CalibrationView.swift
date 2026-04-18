@@ -155,6 +155,7 @@ struct CalibrationView: View {
         lightSlapPeak = 0
         displayedImpact = 0
         wasMonitoringBeforeCalibration = monitor.isMonitoring
+        monitor.resetCalibrationImpactPeak()
         phase = .deskTap
         phaseStartedAt = Date()
 
@@ -193,9 +194,9 @@ struct CalibrationView: View {
 
         calibrationTask = nil
 
-        let minimumGap = 0.05
+        let minimumGap = 0.01
         let noiseFloor = max(baselinePeak, SlapMonitor.thresholdRange.lowerBound)
-        let slapPeak = max(lightSlapPeak, noiseFloor + minimumGap)
+        let slapPeak = max(lightSlapPeak, noiseFloor)
         let suggestedThreshold = max(noiseFloor + minimumGap, slapPeak * 0.72)
         monitor.threshold = SlapMonitor.steppedThreshold(suggestedThreshold)
         phase = .finished
@@ -238,17 +239,19 @@ struct CalibrationView: View {
 
         switch phase {
         case .deskTap:
-            baselinePeak = max(baselinePeak, impact)
+            let phasePeak = max(impact, monitor.calibrationImpactPeak)
+            baselinePeak = max(baselinePeak, phasePeak)
 
-            guard impact >= CalibrationDetection.minimumImpact else {
+            guard phasePeak >= CalibrationDetection.minimumImpact else {
                 return
             }
 
             moveToLightSlap()
         case .lightSlap:
-            lightSlapPeak = max(lightSlapPeak, impact)
+            let phasePeak = max(impact, monitor.calibrationImpactPeak)
+            lightSlapPeak = max(lightSlapPeak, phasePeak)
 
-            guard impact >= lightTapRequiredImpact else {
+            guard phasePeak >= lightTapRequiredImpact else {
                 return
             }
 
@@ -261,22 +264,19 @@ struct CalibrationView: View {
     private func moveToLightSlap() {
         phase = .lightSlap
         phaseStartedAt = Date()
+        monitor.resetCalibrationImpactPeak()
         monitor.status = "Calibration: light tap"
     }
 
     private var lightTapRequiredImpact: Double {
-        max(
-            CalibrationDetection.minimumImpact,
-            baselinePeak + CalibrationDetection.minimumPeakSeparation
-        )
+        CalibrationDetection.minimumImpact
     }
 }
 
 private enum CalibrationDetection {
-    static let samplingInterval: Duration = .milliseconds(80)
-    static let phaseArmDelay = 0.35
-    static let minimumImpact = 0.10
-    static let minimumPeakSeparation = 0.03
+    static let samplingInterval: Duration = .milliseconds(25)
+    static let phaseArmDelay = 0.25
+    static let minimumImpact = 0.025
 }
 
 private enum CalibrationPhase {
@@ -307,9 +307,9 @@ private enum CalibrationPhase {
         case .idle:
             "Run the wizard to measure desk noise first, then a light MacBook tap."
         case .deskTap:
-            "Tap the desk firmly once, away from the MacBook. The wizard waits for a clear peak."
+            "Tap the desk once, away from the MacBook. The wizard waits for a valid peak."
         case .lightSlap:
-            "Now apply one light tap to the MacBook. Calibration finishes only after a clear tap."
+            "Now apply one light tap to the MacBook. Calibration finishes only after a valid tap."
         case .finished:
             "Threshold updated from the measured peaks. Fine-tune with the slider if needed."
         }
