@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CalibrationView: View {
     @Bindable var monitor: SlapMonitor
+    var onFinish: (() -> Void)? = nil
 
     @State private var phase: CalibrationPhase = .idle
     @State private var baselinePeak = 0.0
@@ -201,6 +202,7 @@ struct CalibrationView: View {
         monitor.threshold = SlapMonitor.steppedThreshold(suggestedThreshold)
         phase = .finished
         monitor.status = "Calibration finished"
+        onFinish?()
 
         if !wasMonitoringBeforeCalibration {
             monitor.stopMonitoring()

@@ -9,6 +9,8 @@ struct OnboardingView: View {
     @State private var scannerPulse = false
     @State private var isSoundTestActive = false
     @State private var hasCompletedSoundTest = false
+    @State private var isShowingCalibration = false
+    @State private var hasCompletedCalibration = false
     @State private var soundTestSlapBaseline = 0
     @State private var thresholdBeforeSoundTest: Double?
     @State private var showsUnsupportedTestModeNotice = false
@@ -61,6 +63,7 @@ struct OnboardingView: View {
                 ProgressStepsView(
                     sensorAvailability: monitor.sensorAvailability,
                     hasCompletedSoundTest: hasCompletedSoundTest,
+                    hasCompletedCalibration: hasCompletedCalibration,
                     canStart: canStartApp
                 )
             }
@@ -88,6 +91,12 @@ struct OnboardingView: View {
             Button("OK", role: .cancel) { }
         } message: {
             Text("SlamDih is now simulating a Mac without the Apple SPU accelerometer. This is only for testing the unsupported-device flow; it does not mean this Mac is actually unsupported.")
+        }
+        .sheet(isPresented: $isShowingCalibration) {
+            CalibrationView(monitor: monitor) {
+                hasCompletedCalibration = true
+            }
+            .frame(width: 720, height: 620)
         }
         .onChange(of: monitor.slapCount) { _, newValue in
             guard isSoundTestActive, !hasCompletedSoundTest, newValue > soundTestSlapBaseline else {
@@ -118,30 +127,45 @@ struct OnboardingView: View {
     }
 
     private var actionRow: some View {
-        HStack(spacing: 12) {
-            Button {
-                finishOnboarding()
-                startApp()
-            } label: {
-                Label("Start using SlamDih", systemImage: "arrow.right.circle.fill")
-                    .frame(width: 230)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                Button {
+                    finishOnboarding()
+                    startApp()
+                } label: {
+                    Label("Start using SlamDih", systemImage: "arrow.right.circle.fill")
+                        .frame(width: 230)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(.mint)
+                .disabled(!canStartApp)
+
+                Button {
+                    Task {
+                        await runAvailabilityCheck()
+                    }
+                } label: {
+                    Label("Check Again", systemImage: "arrow.clockwise")
+                        .frame(width: 144)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .disabled(monitor.sensorAvailability == .checking)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .tint(.mint)
-            .disabled(!canStartApp)
 
             Button {
-                Task {
-                    await runAvailabilityCheck()
-                }
+                isShowingCalibration = true
             } label: {
-                Label("Check Again", systemImage: "arrow.clockwise")
-                    .frame(width: 144)
+                HStack(spacing: 10) {
+                    Label("Calibrate Threshold", systemImage: "slider.horizontal.3")
+                    BetaBadge()
+                }
+                .frame(width: 230)
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
-            .disabled(monitor.sensorAvailability == .checking)
+            .disabled(!hasCompletedSoundTest || !monitor.canMonitor)
         }
     }
 
@@ -166,6 +190,8 @@ struct OnboardingView: View {
         switch monitor.sensorAvailability {
         case .checking:
             return "SlamDih is checking whether this Mac exposes the Apple SPU motion sensor."
+        case .detected where hasCompletedSoundTest && hasCompletedCalibration:
+            return "Detection is verified and the beta calibration has tuned the trigger threshold."
         case .detected where hasCompletedSoundTest:
             return "The local sensor and audio path are working. You can continue to the monitor."
         case .detected where isSoundTestActive:
@@ -252,6 +278,7 @@ struct OnboardingView: View {
 
     private func resetOnboardingGate() {
         hasCompletedSoundTest = false
+        hasCompletedCalibration = false
         stopSoundTestIfNeeded()
     }
 
@@ -460,6 +487,7 @@ private struct SensorScannerView: View {
 private struct ProgressStepsView: View {
     let sensorAvailability: SensorAvailability
     let hasCompletedSoundTest: Bool
+    let hasCompletedCalibration: Bool
     let canStart: Bool
 
     var body: some View {
@@ -476,6 +504,14 @@ private struct ProgressStepsView: View {
                 value: hasCompletedSoundTest ? "Verified" : "Pending",
                 symbol: hasCompletedSoundTest ? "checkmark.circle.fill" : "hand.tap.fill",
                 tint: hasCompletedSoundTest ? .mint : .white.opacity(0.56)
+            )
+
+            OnboardingStepItem(
+                title: "Calibration",
+                value: hasCompletedCalibration ? "Adjusted" : "Optional",
+                symbol: hasCompletedCalibration ? "checkmark.circle.fill" : "slider.horizontal.3",
+                tint: hasCompletedCalibration ? .mint : .yellow.opacity(0.82),
+                isBeta: true
             )
 
             OnboardingStepItem(
@@ -525,6 +561,7 @@ private struct OnboardingStepItem: View {
     let value: String
     let symbol: String
     let tint: Color
+    var isBeta = false
 
     var body: some View {
         HStack(spacing: 10) {
@@ -535,9 +572,16 @@ private struct OnboardingStepItem: View {
                 .frame(width: 24)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.48))
+                HStack(spacing: 6) {
+                    Text(title)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.48))
+
+                    if isBeta {
+                        BetaBadge()
+                    }
+                }
+
                 Text(value)
                     .font(.callout.weight(.semibold))
                     .lineLimit(1)
@@ -547,6 +591,21 @@ private struct OnboardingStepItem: View {
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, minHeight: 54, alignment: .leading)
+    }
+}
+
+private struct BetaBadge: View {
+    var body: some View {
+        Text("BETA")
+            .font(.caption2.weight(.bold))
+            .foregroundStyle(.yellow.opacity(0.92))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(.yellow.opacity(0.14), in: Capsule())
+            .overlay {
+                Capsule()
+                    .stroke(.yellow.opacity(0.28), lineWidth: 1)
+            }
     }
 }
 
