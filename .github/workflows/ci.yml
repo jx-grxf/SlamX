@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "30 12 * * 1"
 
 permissions:
-  actions: read
   contents: read
-  security-events: write
 
 jobs:
   test:
@@ -25,6 +25,9 @@ jobs:
   secret-scan:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - name: Checkout
@@ -39,7 +42,21 @@ jobs:
 
   dependency-scan:
     name: Dependency scan (OSV)
+    if: github.event_name != 'pull_request'
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@c51854704019a247608d928f370c98740469d4b5
+    with:
+      scan-args: |-
+        --recursive
+        .
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+  dependency-scan-pr:
+    name: Dependency scan (OSV PR)
+    if: github.event_name == 'pull_request'
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@c51854704019a247608d928f370c98740469d4b5
     with:
       scan-args: |-
         --recursive
@@ -53,6 +70,9 @@ jobs:
     name: Dependency review (PR)
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
 
     steps:
       - name: Dependency review
