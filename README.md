@@ -97,6 +97,8 @@ MacBooks have internal motion hardware, but Apple does not expose a clean public
 
 SlamX wraps that low-level stream in a tiny native app with visible telemetry so calibration is not guesswork.
 
+On recent macOS builds the Apple SPU stream may require a privileged helper to wake the sensor driver and receive reports. SlamX starts that local helper only for sensor streaming, so macOS can ask for administrator approval when monitoring begins.
+
 ---
 
 ## Current Workflow
@@ -128,6 +130,7 @@ If no accessible Apple SPU accelerometer is found during onboarding, SlamX expla
 ## Requirements
 
 - macOS 14 or newer
+- Administrator approval for the local sensor helper when macOS requests it
 - Apple Silicon MacBook with an exposed Apple SPU accelerometer
 - Xcode or Command Line Tools
 - Swift 6 compatible toolchain
@@ -247,6 +250,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project Sla
 - Apple documents Core Motion primarily for platforms with a public `CMMotionManager` path, but that path is not the right MacBook accelerometer interface.
 - Apple documents the HID APIs used here through IOKit, including [`IOHIDDeviceRegisterInputReportCallback`](https://developer.apple.com/documentation/iokit/1588666-iohiddeviceregisterinputreportca).
 - The local IORegistry exposes the relevant MacBook stream as `AppleSPUHIDDevice` with usage page `0xFF00` and usage `0x03`.
+- Recent Apple SPU drivers need reporting and power state properties to be enabled before the accelerometer emits live reports.
 - The app intentionally keeps the parser isolated because Apple can change private report layout details between hardware generations.
 
 ---

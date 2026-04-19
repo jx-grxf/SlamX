@@ -219,6 +219,8 @@ struct OnboardingView: View {
             return "Detection is verified and the beta calibration has tuned the trigger threshold."
         case .detected where hasCompletedSoundTest:
             return "The local sensor and audio path are working. You can continue to the monitor."
+        case .detected where isSoundTestActive && monitor.samplesPerSecond == 0:
+            return "Approve the sensor helper when macOS asks, then apply one light tap to verify live motion data."
         case .detected where isSoundTestActive:
             return "Apply one light tap to verify that the sensor can detect a clear impact."
         case .detected:
