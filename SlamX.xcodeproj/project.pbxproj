@@ -36,10 +36,7 @@
 		B1000000000000000000001C /* Sources/SlamX/Services/LaunchAtLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001E /* Sources/SlamX/Services/LaunchAtLoginController.swift */; };
 		B1000000000000000000001D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001F /* Carbon.framework */; };
 		B1000000000000000000001E /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F10000000000000000000020 /* ServiceManagement.framework */; };
-		B1000000000000000000001F /* Sources/SlamX/SlamXMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000021 /* Sources/SlamX/SlamXMain.swift */; };
 		B10000000000000000000020 /* Sources/SlamX/Services/MotionSensorStreaming.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000022 /* Sources/SlamX/Services/MotionSensorStreaming.swift */; };
-		B10000000000000000000021 /* Sources/SlamX/Services/PrivilegedMotionSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000023 /* Sources/SlamX/Services/PrivilegedMotionSensor.swift */; };
-		B10000000000000000000022 /* Sources/SlamX/Services/SensorHelperCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000024 /* Sources/SlamX/Services/SensorHelperCommand.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,10 +83,7 @@
 		F1000000000000000000001E /* Sources/SlamX/Services/LaunchAtLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamX/Services/LaunchAtLoginController.swift; sourceTree = "<group>"; };
 		F1000000000000000000001F /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		F10000000000000000000020 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
-		F10000000000000000000021 /* Sources/SlamX/SlamXMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamX/SlamXMain.swift; sourceTree = "<group>"; };
 		F10000000000000000000022 /* Sources/SlamX/Services/MotionSensorStreaming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamX/Services/MotionSensorStreaming.swift; sourceTree = "<group>"; };
-		F10000000000000000000023 /* Sources/SlamX/Services/PrivilegedMotionSensor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamX/Services/PrivilegedMotionSensor.swift; sourceTree = "<group>"; };
-		F10000000000000000000024 /* Sources/SlamX/Services/SensorHelperCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamX/Services/SensorHelperCommand.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -144,7 +138,6 @@
 		A00000000000000000000005 /* SlamX */ = {
 			isa = PBXGroup;
 			children = (
-				F10000000000000000000021 /* Sources/SlamX/SlamXMain.swift */,
 				F10000000000000000000001 /* Sources/SlamX/SlamXApp.swift */,
 				A00000000000000000000006 /* Services */,
 				A00000000000000000000007 /* ViewModels */,
@@ -158,8 +151,6 @@
 			children = (
 				F10000000000000000000002 /* Sources/SlamX/Services/MacBookMotionSensor.swift */,
 				F10000000000000000000022 /* Sources/SlamX/Services/MotionSensorStreaming.swift */,
-				F10000000000000000000023 /* Sources/SlamX/Services/PrivilegedMotionSensor.swift */,
-				F10000000000000000000024 /* Sources/SlamX/Services/SensorHelperCommand.swift */,
 				F1000000000000000000001D /* Sources/SlamX/Services/GlobalHotKeyController.swift */,
 				F1000000000000000000001E /* Sources/SlamX/Services/LaunchAtLoginController.swift */,
 				F10000000000000000000003 /* Sources/SlamX/Services/SoundPlayer.swift */,
@@ -326,11 +317,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B10000000000000000000001 /* Sources/SlamX/SlamXApp.swift in Sources */,
-				B1000000000000000000001F /* Sources/SlamX/SlamXMain.swift in Sources */,
 				B10000000000000000000002 /* Sources/SlamX/Services/MacBookMotionSensor.swift in Sources */,
 				B10000000000000000000020 /* Sources/SlamX/Services/MotionSensorStreaming.swift in Sources */,
-				B10000000000000000000021 /* Sources/SlamX/Services/PrivilegedMotionSensor.swift in Sources */,
-				B10000000000000000000022 /* Sources/SlamX/Services/SensorHelperCommand.swift in Sources */,
 				B10000000000000000000003 /* Sources/SlamX/Services/SoundPlayer.swift in Sources */,
 				B10000000000000000000004 /* Sources/SlamX/ViewModels/SlapMonitor.swift in Sources */,
 				B10000000000000000000005 /* Sources/SlamX/Views/AboutView.swift in Sources */,

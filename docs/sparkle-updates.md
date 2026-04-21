@@ -47,14 +47,19 @@ For a GitHub release, prefer the combined asset script:
 This creates the DMG, checksum, appcast, and source archives with `SlamX` asset names. The script fails if a legacy `SlamDih*` release asset name is produced.
 The appcast DMG enclosure uses the concrete GitHub release tag URL by default, so clients do not depend on the mutable `latest` redirect while downloading the update. If you override `APPCAST_DOWNLOAD_URL_PREFIX`, provide the directory URL for the release assets; the script normalizes a missing trailing slash.
 
-Optional but recommended: add release notes next to the DMG before generating the appcast.
-The filename must match the DMG basename:
+The script writes a release-notes file next to the DMG before generating the appcast.
+The filename matches the DMG basename:
 
 ```text
-.build/dmg/SlamX-0.2.0.md
+.build/dmg/SlamX-0.2.0.html
 ```
 
-These notes are embedded into `appcast.xml`, so Sparkle can show the changelog in its update window without another release asset.
+These notes are embedded into `appcast.xml`, so Sparkle can show the changelog in its update window without another release asset. Pass `RELEASE_NOTES_FILE=/path/to/notes.html` to use curated notes instead of the generated commit list.
+For release tags that differ from the numeric app version, such as `v0.3.4-fix`, keep the app version Apple-compatible and set the tag explicitly:
+
+```bash
+RELEASE_TAG=v0.3.4-fix ./scripts/create-release-assets.sh 0.3.4 8
+```
 
 Upload these release assets:
 
