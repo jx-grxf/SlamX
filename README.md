@@ -17,7 +17,7 @@
 
 SlamX is a small experimental MacBook utility that listens to the built-in Apple SPU accelerometer, detects sharp impact spikes, increments a counter, and plays local sound feedback.
 
-It is built as a local-first macOS project: motion samples stay on the Mac, no microphone path exists, and live detection is only available on supported MacBooks.
+It is built as a local macOS project: motion samples stay on the Mac, no microphone path exists, and live detection is only available on supported MacBooks.
 
 **By using this app, I agree that Johannes is not liable for any damage to the device if you bang on the MacBook as if you were mining diamonds.**
 
@@ -66,6 +66,7 @@ It is built as a local-first macOS project: motion samples stay on the Mac, no m
   - [Development](#development)
   - [Research Notes](#research-notes)
   - [Roadmap](#roadmap)
+- [Planned for v0.\<\<\<\>\>\>](#planned-for-v0)
   - [License](#license)
 
 ---
@@ -99,6 +100,8 @@ MacBooks have internal motion hardware, but Apple does not expose a clean public
 
 SlamX wraps that low-level stream in a tiny native app with visible telemetry so calibration is not guesswork.
 
+On recent macOS builds the Apple SPU stream may require a privileged helper to wake the sensor driver and receive reports. SlamX starts that local helper only for sensor streaming, so macOS can ask for administrator approval when monitoring begins.
+
 ---
 
 ## Current Workflow
@@ -130,6 +133,7 @@ If no accessible Apple SPU accelerometer is found during onboarding, SlamX expla
 ## Requirements
 
 - macOS 14 or newer
+- Administrator approval for the local sensor helper when macOS requests it
 - Apple Silicon MacBook with an exposed Apple SPU accelerometer
 - Xcode or Command Line Tools
 - Swift 6 compatible toolchain
@@ -146,14 +150,14 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift run SlamX
 Build a local release app:
 
 ```bash
-./scripts/package-app.sh 0.2.1 3
+./scripts/package-app.sh 0.3.2 5 / 0.3.3 6 - beta
 open .build/xcode-release/Release/SlamX.app
 ```
 
 Create a local Sparkle-ready DMG and appcast:
 
 ```bash
-./scripts/create-dmg.sh 0.2.1 3
+./scripts/create-dmg.sh 0.3.2 5 / 0.3.3 6 - beta
 ./scripts/generate-appcast.sh .build/dmg
 ```
 
@@ -221,19 +225,19 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift run SlamX
 Package the app through the Xcode project:
 
 ```bash
-./scripts/package-app.sh 0.2.1 3
+./scripts/package-app.sh 0.3.2 5 / 0.3.3 6 - beta
 ```
 
 Build the release DMG:
 
 ```bash
-./scripts/create-dmg.sh 0.2.1 3
+./scripts/create-dmg.sh 0.3.2 5 / 0.3.3 6 - beta
 ```
 
 Prepare the full GitHub release asset set:
 
 ```bash
-./scripts/create-release-assets.sh 0.2.1 3
+./scripts/create-release-assets.sh 0.3.2 5 / 0.3.3 6 - beta
 ```
 
 Build through Xcode:
@@ -249,15 +253,15 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project Sla
 - Apple documents Core Motion primarily for platforms with a public `CMMotionManager` path, but that path is not the right MacBook accelerometer interface.
 - Apple documents the HID APIs used here through IOKit, including [`IOHIDDeviceRegisterInputReportCallback`](https://developer.apple.com/documentation/iokit/1588666-iohiddeviceregisterinputreportca).
 - The local IORegistry exposes the relevant MacBook stream as `AppleSPUHIDDevice` with usage page `0xFF00` and usage `0x03`.
+- Recent Apple SPU drivers need reporting and power state properties to be enabled before the accelerometer emits live reports.
 - The app intentionally keeps the parser isolated because Apple can change private report layout details between hardware generations.
 
 ---
 
 ## Roadmap
 
-- Hide raw HID telemetry behind an Advanced view for a cleaner public build.
+# Planned for v0.<<<>>>
 - Add Developer ID signing and notarized release packaging after Apple Developer Program enrollment.
-- Refine product copy and screenshots for a broader public launch.
 - Add a signed release workflow after Developer ID credentials are available.
 
 ---

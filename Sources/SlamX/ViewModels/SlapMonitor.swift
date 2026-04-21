@@ -122,7 +122,7 @@ final class SlapMonitor {
         }
     }
 
-    @ObservationIgnored private let sensor = MacBookMotionSensor()
+    @ObservationIgnored private let sensor: MotionSensorStreaming = getuid() == 0 ? MacBookMotionSensor() : PrivilegedMotionSensor()
     @ObservationIgnored private let soundPlayer = SoundPlayer()
     @ObservationIgnored private let userDefaults: UserDefaults
     @ObservationIgnored private var detector = SlapDetector()

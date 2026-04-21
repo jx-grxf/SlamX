@@ -18,4 +18,17 @@ final class MotionReportParserTests: XCTestCase {
         XCTAssertEqual(sample.acceleration.y, -0.75)
         XCTAssertEqual(sample.acceleration.z, 1.0)
     }
+
+    func testMotionSampleRoundTripsThroughJSON() throws {
+        let sample = MotionSample(
+            timestamp: 12.0,
+            acceleration: MotionVector(x: 0.5, y: -0.75, z: 1.0),
+            rawReport: [0x00, 0x01, 0x02]
+        )
+
+        let data = try JSONEncoder().encode(sample)
+        let decoded = try JSONDecoder().decode(MotionSample.self, from: data)
+
+        XCTAssertEqual(decoded, sample)
+    }
 }
