@@ -16,7 +16,7 @@ enum PrivilegedMotionSensorError: LocalizedError {
         case .pipeCreationFailed:
             "SlamX could not create the local sensor pipe."
         case .pipeOpenFailed:
-            "SlamX could not open the local sensor pipe."
+            "SlamX could not open the local sensor pipeline."
         }
     }
 }
@@ -66,7 +66,7 @@ final class PrivilegedMotionSensor: MotionSensorStreaming, @unchecked Sendable {
         let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
         self.pipeHandle = handle
         self.sessionDirectory = sessionDirectory
-
+ 
         handle.readabilityHandler = { [weak self] handle in
             let data = handle.availableData
             guard !data.isEmpty else {
