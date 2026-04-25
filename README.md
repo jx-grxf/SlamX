@@ -27,7 +27,7 @@ Motion data stays on the Mac. SlamX does not use the microphone, does not reques
 ## Showcase
 
 <p align="center">
-  <img src="docs/showcase/slamx-showcase.svg" alt="SlamX interface overview" width="920">
+  <img src="docs/showcase/slamx.png" alt="SlamX interface overview" width="920">
 </p>
 
 | Onboarding | Calibration | Live Dashboard |
@@ -38,21 +38,24 @@ Motion data stays on the Mac. SlamX does not use the microphone, does not reques
 
 ## Contents
 
-- [Highlights](#highlights)
-- [Compatibility](#compatibility)
-- [Why This Exists](#why-this-exists)
-- [Current Workflow](#current-workflow)
-- [Tech Stack](#tech-stack)
-- [Requirements](#requirements)
-- [Quick Start](#quick-start)
-- [Usage](#usage)
-- [Privacy & Trust](#privacy--trust)
-- [Release & Distribution Status](#release--distribution-status)
-- [CI & Repository Health](#ci--repository-health)
-- [Development](#development)
-- [Research Notes](#research-notes)
-- [Roadmap](#roadmap)
-- [License](#license)
+- [SlamX](#slamx)
+  - [Showcase](#showcase)
+  - [Contents](#contents)
+  - [Highlights](#highlights)
+  - [Compatibility](#compatibility)
+  - [Why This Exists](#why-this-exists)
+  - [Current Workflow](#current-workflow)
+  - [Tech Stack](#tech-stack)
+  - [Requirements](#requirements)
+  - [Quick Start](#quick-start)
+  - [Usage](#usage)
+  - [Privacy \& Trust](#privacy--trust)
+  - [Release \& Distribution Status](#release--distribution-status)
+  - [CI \& Repository Health](#ci--repository-health)
+  - [Development](#development)
+  - [Research Notes](#research-notes)
+  - [Roadmap](#roadmap)
+  - [License](#license)
 
 ---
 
