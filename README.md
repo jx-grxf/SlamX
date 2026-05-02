@@ -27,7 +27,7 @@ Motion data stays on the Mac. SlamX does not use the microphone, does not reques
 ## Showcase
 
 <p align="center">
-  <img src="docs/showcase/slamx.png" alt="SlamX interface overview" width="920">
+  <img src="docs/showcase/slamx.png" alt="SlamX app artwork" width="180">
 </p>
 
 | Onboarding | Calibration | Live Dashboard |
