@@ -2,6 +2,7 @@ import SwiftUI
 
 enum AppSection: String, CaseIterable, Identifiable {
     case monitor = "Monitor"
+    case stats = "Stats"
     case calibration = "Calibration"
     case about = "About"
 
@@ -11,6 +12,8 @@ enum AppSection: String, CaseIterable, Identifiable {
         switch self {
         case .monitor:
             "waveform.path.ecg"
+        case .stats:
+            "chart.bar.fill"
         case .calibration:
             "slider.horizontal.3"
         case .about:
@@ -67,6 +70,8 @@ struct ContentView: View {
         switch selection ?? .monitor {
         case .monitor:
             MonitorView(monitor: monitor)
+        case .stats:
+            StatsView(monitor: monitor)
         case .calibration:
             CalibrationView(monitor: monitor)
         case .about:

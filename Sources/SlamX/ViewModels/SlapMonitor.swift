@@ -122,6 +122,8 @@ final class SlapMonitor {
         }
     }
 
+    let stats = SlapStatsStore()
+
     @ObservationIgnored private let sensor: MotionSensorStreaming = MacBookMotionSensor()
     @ObservationIgnored private let soundPlayer = SoundPlayer()
     @ObservationIgnored private let userDefaults: UserDefaults
@@ -397,6 +399,7 @@ final class SlapMonitor {
         }
 
         slapCount += 1
+        stats.record(impact: event.impact)
 
         if playSelectedSound() {
             lastEventDescription = "\(selectedSoundTitle) \(slapCount) at \(event.impact.formatted(.number.precision(.fractionLength(2)))) g"

@@ -37,6 +37,8 @@
 		B1000000000000000000001D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1000000000000000000001F /* Carbon.framework */; };
 		B1000000000000000000001E /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F10000000000000000000020 /* ServiceManagement.framework */; };
 		B10000000000000000000020 /* Sources/SlamX/Services/MotionSensorStreaming.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000022 /* Sources/SlamX/Services/MotionSensorStreaming.swift */; };
+		B10000000000000000000021 /* Sources/SlamX/Views/StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000023 /* Sources/SlamX/Views/StatsView.swift */; };
+		B10000000000000000000022 /* Sources/SlamX/ViewModels/SlapStatsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000024 /* Sources/SlamX/ViewModels/SlapStatsStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +86,8 @@
 		F1000000000000000000001F /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		F10000000000000000000020 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
 		F10000000000000000000022 /* Sources/SlamX/Services/MotionSensorStreaming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamX/Services/MotionSensorStreaming.swift; sourceTree = "<group>"; };
+		F10000000000000000000023 /* Sources/SlamX/Views/StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamX/Views/StatsView.swift; sourceTree = "<group>"; };
+		F10000000000000000000024 /* Sources/SlamX/ViewModels/SlapStatsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SlamX/ViewModels/SlapStatsStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +167,7 @@
 			isa = PBXGroup;
 			children = (
 				F10000000000000000000004 /* Sources/SlamX/ViewModels/SlapMonitor.swift */,
+				F10000000000000000000024 /* Sources/SlamX/ViewModels/SlapStatsStore.swift */,
 			);
 			name = ViewModels;
 			sourceTree = "<group>";
@@ -174,6 +179,7 @@
 				F10000000000000000000006 /* Sources/SlamX/Views/CalibrationView.swift */,
 				F10000000000000000000007 /* Sources/SlamX/Views/ContentView.swift */,
 				F10000000000000000000008 /* Sources/SlamX/Views/MonitorView.swift */,
+				F10000000000000000000023 /* Sources/SlamX/Views/StatsView.swift */,
 				F10000000000000000000016 /* Sources/SlamX/Views/OnboardingView.swift */,
 				F10000000000000000000009 /* Sources/SlamX/Views/SettingsView.swift */,
 			);
@@ -325,6 +331,8 @@
 				B10000000000000000000006 /* Sources/SlamX/Views/CalibrationView.swift in Sources */,
 				B10000000000000000000007 /* Sources/SlamX/Views/ContentView.swift in Sources */,
 				B10000000000000000000008 /* Sources/SlamX/Views/MonitorView.swift in Sources */,
+				B10000000000000000000021 /* Sources/SlamX/Views/StatsView.swift in Sources */,
+				B10000000000000000000022 /* Sources/SlamX/ViewModels/SlapStatsStore.swift in Sources */,
 				B10000000000000000000014 /* Sources/SlamX/Views/OnboardingView.swift in Sources */,
 				B10000000000000000000009 /* Sources/SlamX/Views/SettingsView.swift in Sources */,
 				B10000000000000000000016 /* Sources/SlamX/Services/UpdateController.swift in Sources */,
