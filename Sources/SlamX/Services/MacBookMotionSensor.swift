@@ -27,6 +27,12 @@ final class MacBookMotionSensor: MotionSensorStreaming {
     private var device: IOHIDDevice?
     private var sampleHandler: SampleHandler?
 
+    /// Desired streaming interval in microseconds (1 kHz). Requesting an interval
+    /// on the opened HID device wakes the SPU accelerometer out of its idle state
+    /// so it keeps delivering input reports. This runs at user level on the device
+    /// handle we already hold open, so it never requires admin rights.
+    private static let reportIntervalMicroseconds = 1000
+
     init(reportLength: Int = 22) {
         self.reportLength = reportLength
         self.reportBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: reportLength)
@@ -53,6 +59,8 @@ final class MacBookMotionSensor: MotionSensorStreaming {
             stop()
             throw MotionSensorError.openFailed(openResult)
         }
+
+        Self.wakeOpenedDevice(device)
 
         IOHIDDeviceRegisterInputReportCallback(
             device,
@@ -90,6 +98,18 @@ final class MacBookMotionSensor: MotionSensorStreaming {
 
         IOHIDDeviceClose(device, IOOptionBits(kIOHIDOptionsTypeNone))
         return true
+    }
+
+    /// Asks the freshly opened accelerometer to stream at a fixed interval.
+    /// "ReportInterval" is the documented `kIOHIDReportIntervalKey`; setting it on
+    /// the opened device is a client-level request that does not need privileges.
+    private static func wakeOpenedDevice(_ device: IOHIDDevice) {
+        var interval = Int32(reportIntervalMicroseconds)
+        guard let number = CFNumberCreate(kCFAllocatorDefault, .sInt32Type, &interval) else {
+            return
+        }
+
+        IOHIDDeviceSetProperty(device, "ReportInterval" as CFString, number)
     }
 
     private func handleReport(_ report: [UInt8]) {
